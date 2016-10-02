@@ -13,26 +13,11 @@ public class TestServer3 {
         boolean flag = true;
         while (flag) {
             Socket socket = serverSocket.accept();
-            System.out.println("accept: " + socket);
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String str = br.readLine();
-
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            bw.write(str + "\n");
-            bw.flush();
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            socket.close();
+            new Thread(new ClientSocket(socket)).run();
         }
     }
 
-    private class ClientSocket implements Runnable {
+    private static class ClientSocket implements Runnable {
         private Socket socket;
 
         public ClientSocket(Socket socket) {
@@ -41,7 +26,26 @@ public class TestServer3 {
 
         @Override
         public void run() {
+            try {
+                System.out.println("accept: " + socket);
 
+                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String str = br.readLine();
+
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                bw.write(str + "\n");
+                bw.flush();
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                socket.close();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 }
