@@ -23,7 +23,6 @@ public class WPBMockClient {
 
     public void connect() throws IOException {
         socket = new Socket("127.0.0.1",9103);
-
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
