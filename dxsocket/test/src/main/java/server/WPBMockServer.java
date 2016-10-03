@@ -27,7 +27,6 @@ public class WPBMockServer {
         while (flag) {
             Socket socket = serverSocket.accept();
             ConnectThread connectThread = new ConnectThread(socket);
-            connectThreads.add(connectThread);
             connectThread.start();
         }
     }
@@ -54,7 +53,7 @@ public class WPBMockServer {
                 }
 
                 try {
-                    Thread.sleep(new Random().nextInt(5000) + 1000);
+                    Thread.sleep(new Random().nextInt(5000) + 500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -74,6 +73,7 @@ public class WPBMockServer {
 
         @Override
         public void run() {
+            connectThreads.add(this);
             try {
                 System.out.println("accept: " + socket);
 
@@ -144,6 +144,7 @@ public class WPBMockServer {
         }
 
         public void writePacket(Packet packet) throws IOException {
+            System.out.println("write packet: " + packet);
             writer.write(packet.toBytes());
             writer.flush();
         }

@@ -4,7 +4,6 @@ import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;
 import okio.Okio;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,7 +18,7 @@ public class Packet {
     public static final int CMD_CREATE_ORDER = 2;
     public static final int CMD_WEBSOCKET = 8888;
 
-    public int contentLen;
+    public int length;
     public int cmd;
     public int seq;
 
@@ -32,12 +31,10 @@ public class Packet {
         this.cmd = cmd;
         this.seq = seq;
         this.content = content;
-        this.contentLen = content.length();
     }
 
     public void setResponse(Map<String,String> map) {
         this.content = JSONUtil.map2json(map);
-        this.contentLen = content.length();
     }
 
     public byte[] toBytes() {
@@ -45,10 +42,12 @@ public class Packet {
         BufferedSink bufferedSink = Okio.buffer(Okio.sink(bos));
 
         try {
-            bufferedSink.writeInt(contentLen);
+            //包长 = 内容长度 + 包头固定的12个字节
+            ByteString byteString = ByteString.encodeUtf8(content);
+            bufferedSink.writeInt(byteString.size() + 12);
             bufferedSink.writeInt(cmd);
             bufferedSink.writeInt(seq);
-            bufferedSink.write(ByteString.encodeUtf8(content));
+            bufferedSink.write(byteString);
             bufferedSink.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,10 +67,11 @@ public class Packet {
 
     public static Packet build(BufferedSource reader) throws IOException {
         Packet packet = new Packet();
-        packet.contentLen = reader.readInt();
+        packet.length = reader.readInt();
         packet.cmd = reader.readInt();
         packet.seq = reader.readInt();
-        packet.content = reader.readString(packet.contentLen, Charset.forName("utf-8"));
+        //减去协议头的12个字节长度
+        packet.content = reader.readString(packet.length - 12, Charset.forName("utf-8"));
         return packet;
     }
 }

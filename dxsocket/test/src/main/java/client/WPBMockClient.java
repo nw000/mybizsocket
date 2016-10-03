@@ -4,8 +4,6 @@ import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
 import server.Packet;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -40,21 +38,21 @@ public class WPBMockClient {
         isReading = true;
         while (isReading) {
             try {
-                byte[] buffer = new byte[256];
-                int len = -1;
-                while ((len = reader.read(buffer)) != -1) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bos.write(buffer,0,len);
-                    System.out.println(new String(bos.toByteArray()));
-                }
-//                Packet packet = Packet.build(reader);
-//                System.out.println("rec: " + packet.toString());
-//
-//                try {
-//                    Thread.sleep(500);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
+//                byte[] buffer = new byte[256];
+//                int len = -1;
+//                while ((len = reader.read(buffer)) != -1) {
+//                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//                    bos.write(buffer,0,len);
+//                    System.out.println(new String(bos.toByteArray()));
 //                }
+                Packet packet = Packet.build(reader);
+                System.out.println("rec: " + packet.toString());
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
