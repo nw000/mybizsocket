@@ -10,6 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/bizsocket-core" />
             <option value="$PROJECT_DIR$/bizsocket-tcp" />
             <option value="$PROJECT_DIR$/test" />
           </set>

@@ -128,4 +128,10 @@ class PacketWriter {
             }
         }
     }
+
+    public void clearQuoue() {
+        if (queue != null) {
+            queue.clear();
+        }
+    }
 }

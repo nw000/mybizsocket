@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/bizsocket.iml" filepath="$PROJECT_DIR$/bizsocket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bizsocket-core/bizsocket-core.iml" filepath="$PROJECT_DIR$/bizsocket-core/bizsocket-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/bizsocket-tcp/bizsocket-tcp.iml" filepath="$PROJECT_DIR$/bizsocket-tcp/bizsocket-tcp.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
     </modules>

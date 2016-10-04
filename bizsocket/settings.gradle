@@ -19,4 +19,5 @@ include 'services:webservice'
 rootProject.name = 'bizsocket'
 include 'test'
 include 'bizsocket-tcp'
+include 'bizsocket-core'
 

@@ -25,13 +25,18 @@ public class WPBClientForMockServer extends SocketConnection implements PacketFa
     }
 
     @Override
-    public Packet getHeartBeat() {
-        return null;
+    public Packet buildPacket(BufferedSource source) throws IOException {
+        return WPBPacket.build(source);
     }
 
     @Override
-    public Packet buildPacket(BufferedSource source) throws IOException {
-        return WPBPacket.build(source);
+    public boolean supportHeartBeat() {
+        return false;
+    }
+
+    @Override
+    public Packet buildHeartBeatPacket() {
+        return null;
     }
 
     public static void main(String[] args) {

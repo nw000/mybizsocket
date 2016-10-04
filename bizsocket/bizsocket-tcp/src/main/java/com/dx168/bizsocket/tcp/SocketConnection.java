@@ -15,7 +15,7 @@ import okio.Okio;
 /**
  * Creates a socket connection to a tcp server.
  */
-public abstract class SocketConnection implements ReconnectionManager.PreReConnect {
+public abstract class SocketConnection implements Connection, ReconnectionManager.PreReConnect {
     public static final int DEFAULT_HEART_BEAT_INTERVAL = 30000;
 
     /**
@@ -38,11 +38,86 @@ public abstract class SocketConnection implements ReconnectionManager.PreReConne
     private int heartbeat = DEFAULT_HEART_BEAT_INTERVAL;//心跳间隔
     private ReconnectionManager reconnectionManager;
 
+    public SocketConnection() {
+        this(null,0);
+    }
+
     public SocketConnection(String host, int port) {
         this.host = host;
         this.port = port;
 
         packetFactory = createPacketFactory();
+    }
+
+    @Override
+    public void connect() throws Exception {
+        disconnect();
+        socket = createSocket(host,port);
+
+        initConnection();
+
+        onSocketConnected();
+        callConnectionListenerConnected();
+
+        if (packetFactory.supportHeartBeat()) {
+            startHeartBeat();
+        }
+    }
+
+    public boolean connectAndStartWatch() {
+        try {
+            bindReconnectionManager();
+            connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void disconnect() {
+        try {
+            if (packetReader != null) {
+                packetReader.shutdown();
+            }
+        } catch (Throwable e) {
+            //e.printStackTrace();
+        }
+        try {
+            if (packetWriter != null) {
+                packetWriter.shutdown();
+            }
+        } catch (Throwable e) {
+            //e.printStackTrace();
+        }
+        stopHeartBeat();
+        if (socket != null && !isSocketClosed()) {
+            if (socket != null && !isSocketClosed()) {
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                }
+                try {
+                    socket.shutdownInput();
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                }
+
+                socket = null;
+            }
+
+            for (ConnectionListener connectionListener : connectionListeners) {
+                connectionListener.connectionClosed();
+            }
+        }
+    }
+
+    @Override
+    public boolean isConnected() {
+        return !isSocketClosed();
     }
 
     protected abstract PacketFactory createPacketFactory();
@@ -94,32 +169,6 @@ public abstract class SocketConnection implements ReconnectionManager.PreReConne
         this.heartbeat = heartbeat;
     }
 
-    public boolean connectAndStartWatch() {
-        try {
-            bindReconnectionManager();
-            connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
-    public void connect() throws Exception {
-        disconnect();
-        socket = createSocket(host,port);
-
-        initConnection();
-
-        onSocketConnected();
-        callConnectionListenerConnected();
-
-        if (packetFactory.supportHeartBeat()) {
-            startHeartBeat();
-        }
-    }
-
     public void reconnect() throws Exception {
         connect();
     }
@@ -148,44 +197,6 @@ public abstract class SocketConnection implements ReconnectionManager.PreReConne
     private void notifyConnectException(Exception exception) {
         for (ConnectionListener connectionListener : connectionListeners) {
             connectionListener.connectionClosedOnError(exception);
-        }
-    }
-
-    public void disconnect() {
-        try {
-            if (packetReader != null) {
-                packetReader.shutdown();
-            }
-        } catch (Throwable e) {
-            //e.printStackTrace();
-        }
-        try {
-            if (packetWriter != null) {
-                packetWriter.shutdown();
-            }
-        } catch (Throwable e) {
-            //e.printStackTrace();
-        }
-        stopHeartBeat();
-        if (socket != null && !isSocketClosed()) {
-            if (socket != null && !isSocketClosed()) {
-                try {
-                    socket.close();
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-                try {
-                    socket.shutdownInput();
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-
-                socket = null;
-            }
-
-            for (ConnectionListener connectionListener : connectionListeners) {
-                connectionListener.connectionClosed();
-            }
         }
     }
 
@@ -291,6 +302,12 @@ public abstract class SocketConnection implements ReconnectionManager.PreReConne
     void handlerReceivedPacket(Packet packet) {
         for (PacketListener packetListener : packetListeners) {
             packetListener.processPacket(packet);
+        }
+    }
+
+    public void clearWriteQuote() {
+        if (packetWriter != null) {
+            packetWriter.clearQuoue();
         }
     }
 }
