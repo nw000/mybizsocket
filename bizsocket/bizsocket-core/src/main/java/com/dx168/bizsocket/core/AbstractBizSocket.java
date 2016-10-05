@@ -34,7 +34,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
             }
         });
-        cacheManager = new CacheManager();
+        cacheManager = createCacheManager();
         getInterceptorChain().addInterceptor(new CacheInterceptor(cacheManager));
     }
 
@@ -98,6 +98,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         return new RequestQueue(bizSocket);
     }
 
+    public CacheManager createCacheManager() {
+        return new CacheManager();
+    }
+
     public Configuration getConfiguration() {
         return configuration;
     }
@@ -112,6 +116,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
     public RequestQueue getRequestQueue() {
         return requestQueue;
+    }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
     }
 
     public void addSerialSignal(SerialSignal serialSignal) {

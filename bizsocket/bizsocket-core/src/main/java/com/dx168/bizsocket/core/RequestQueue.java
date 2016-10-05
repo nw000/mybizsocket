@@ -311,6 +311,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     @Override
     public void onSendSuccessful(Packet packet) {
         packet.onSendSuccessful();
+        getBizSocket().getCacheManager().onSendPacket(packet);
     }
 
     public boolean prepareDispatchPacket(Packet packet) {

@@ -68,6 +68,7 @@ public class RequestContext implements ResponseHandler {
     private Timer timer;
     private String requestBody;
     private int readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
+    private Packet lastSendPacket;
 
     public void addFlag(int flag) {
         this.flags |= flag;
@@ -124,8 +125,15 @@ public class RequestContext implements ResponseHandler {
     @Override
     public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet packet) {
         if (responseHandler != null) {
+            if (lastSendPacket != null
+                    && lastSendPacket.getContent() != null
+                    && lastSendPacket.getContent().equals(packet.getContent())) {
+                return;
+            }
             responseHandler.sendSuccessMessage(command, params, attach, packet);
         }
+
+        lastSendPacket = packet;
     }
 
     @Override

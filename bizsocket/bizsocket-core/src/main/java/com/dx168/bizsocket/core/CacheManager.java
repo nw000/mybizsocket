@@ -22,6 +22,11 @@ public class CacheManager {
         if (cacheEntry != null && cacheEntry.getEntry() == null) {
             return null;
         }
+
+        if (cacheEntry != null && cacheEntry.getEntry() != null && cacheEntry instanceof CounterCacheEntry) {
+            ((CounterCacheEntry) cacheEntry).addCount();
+        }
+
         if (cacheEntry != null && cacheEntry.isExpired()) {
             if (cacheEntry.getType() == CacheEntry.TYPE_EXPIRED_NOT_USE) {
                 return null;
@@ -54,15 +59,21 @@ public class CacheManager {
         cacheEntryMap.clear();
     }
 
-    void onReceivePacket(Packet network) {
-        CacheEntry cacheEntry = get(network.getCommand());
-        if (cacheEntry != null) {
-            cacheEntry.onUpdateEntry(network);
-        }
-
+    void onSendPacket(Packet request) {
         for (CacheEntry entry : cacheEntryMap.values()) {
-            if (entry instanceof UseUtilConflictCacheEntry) {
-                ((UseUtilConflictCacheEntry) entry).onReceiveCmd(network.getCommand());
+            if (entry instanceof UseUtilSendCmdCacheEntry) {
+                ((UseUtilSendCmdCacheEntry) entry).onSendCmd(request.getCommand());
+            }
+        }
+    }
+
+    void onReceivePacket(Packet network) {
+        for (CacheEntry entry : cacheEntryMap.values()) {
+            if (entry.getCommand() == network.getCommand()) {
+                entry.updateEntry(network);
+            }
+            if (entry instanceof UseUtilReceiveCmdCacheEntry) {
+                ((UseUtilReceiveCmdCacheEntry) entry).onReceiveCmd(network.getCommand());
             }
         }
     }

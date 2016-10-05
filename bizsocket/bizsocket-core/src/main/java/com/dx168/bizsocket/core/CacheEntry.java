@@ -39,13 +39,13 @@ public abstract class CacheEntry {
     }
 
     public abstract boolean isExpired();
-    public abstract void onUpdateEntry(Packet networkPacket);
+    abstract void onUpdateEntry(Packet networkPacket);
 
     public void updateEntry(Packet networkPacket) {
         if (networkPacket == null) {
             return;
         }
-        if (networkPacket.getCommand() != packet.getCommand()) {
+        if (packet != null && packet.getCommand() != networkPacket.getCommand()) {
             throw new IllegalArgumentException("can not update packet, expect cmd: " + packet.getCommand() + " but param cmd is " + networkPacket.getCommand());
         }
         this.packet = networkPacket;
@@ -85,8 +85,12 @@ public abstract class CacheEntry {
         return new CounterCacheEntry(command,type,expiresCount);
     }
 
-    public static CacheEntry createUseUtilConflict(int command, int type,int ...conflictCommands) {
-        return new UseUtilConflictCacheEntry(command, type, conflictCommands);
+    public static CacheEntry createUseUtilSendCmd(int command, int type,int ...conflictCommands) {
+        return new UseUtilSendCmdCacheEntry(command, type, conflictCommands);
+    }
+
+    public static CacheEntry createUseUtilReceiveCmd(int command, int type,int ...conflictCommands) {
+        return new UseUtilReceiveCmdCacheEntry(command, type, conflictCommands);
     }
 }
 
@@ -102,7 +106,7 @@ class PersistenceCacheEntry extends CacheEntry {
     }
 
     @Override
-    public void onUpdateEntry(Packet networkPacket) {
+    void onUpdateEntry(Packet networkPacket) {
 
     }
 }
@@ -124,7 +128,7 @@ class RelativeMillisCacheEntry extends CacheEntry {
     }
 
     @Override
-    public void onUpdateEntry(Packet networkPacket) {
+    void onUpdateEntry(Packet networkPacket) {
         expiredMillis = System.currentTimeMillis() + dMillis;
     }
 }
@@ -144,8 +148,8 @@ class CounterCacheEntry extends CacheEntry {
 
     @Override
     public Packet getEntry() {
-        count ++;
-        return super.getEntry();
+        Packet packet = super.getEntry();
+        return packet;
     }
 
     @Override
@@ -154,17 +158,55 @@ class CounterCacheEntry extends CacheEntry {
     }
 
     @Override
-    public void onUpdateEntry(Packet networkPacket) {
+    void onUpdateEntry(Packet networkPacket) {
         count = 0;
+    }
+
+    public void addCount() {
+        count++;
     }
 }
 
-//发现执行的命令后过期
-class UseUtilConflictCacheEntry extends CacheEntry {
+//接收指定的的命令后过期
+class UseUtilSendCmdCacheEntry extends CacheEntry {
     private boolean expired = false;
     private int[] conflictCommands;
 
-    public UseUtilConflictCacheEntry(int command, int type,int ...conflictCommands) {
+    public UseUtilSendCmdCacheEntry(int command, int type, int... conflictCommands) {
+        super(CacheStrategy.use_util_conflict, command, type);
+        this.conflictCommands = conflictCommands;
+
+        if (conflictCommands == null || conflictCommands.length == 0) {
+            throw new IllegalArgumentException("conflict commands can not be null or empty");
+        }
+    }
+
+    public void onSendCmd(int command) {
+        for (int cmd : conflictCommands) {
+            if (cmd == command) {
+                expired = true;
+                break;
+            }
+        }
+    }
+
+    @Override
+    public boolean isExpired() {
+        return expired;
+    }
+
+    @Override
+    void onUpdateEntry(Packet networkPacket) {
+        expired = false;
+    }
+}
+
+//接收指定的的命令后过期
+class UseUtilReceiveCmdCacheEntry extends CacheEntry {
+    private boolean expired = false;
+    private int[] conflictCommands;
+
+    public UseUtilReceiveCmdCacheEntry(int command, int type, int... conflictCommands) {
         super(CacheStrategy.use_util_conflict, command, type);
         this.conflictCommands = conflictCommands;
 
@@ -188,7 +230,7 @@ class UseUtilConflictCacheEntry extends CacheEntry {
     }
 
     @Override
-    public void onUpdateEntry(Packet networkPacket) {
+    void onUpdateEntry(Packet networkPacket) {
         expired = false;
     }
 }
