@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a577ac88-7319-4437-96a2-4861033bb70b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bizsocket-core/src/test/java/client/WPBPacketFactory.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/AbstractBizSocket.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/AbstractBizSocket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheEntry.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheEntry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheManager.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/RequestContext.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/RequestContext.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/RequestQueue.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/RequestQueue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java" afterPath="$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java" />
     </list>
     <ignored path="bizsocket.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -130,10 +123,23 @@
         <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheManager.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+              <caret line="37" column="9" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#290#311#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WPBPacket.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bizsocket-core/src/test/java/common/WPBPacket.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1909#1910#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -143,9 +149,13 @@
         <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheEntry.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
+              <caret line="207" column="20" selection-start-line="207" selection-start-column="13" selection-end-line="207" selection-end-column="20" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1601#1602#0" expanded="true" />
+                <element signature="e#1630#1631#0" expanded="true" />
+                <element signature="e#2826#2827#0" expanded="true" />
+                <element signature="e#2854#2855#0" expanded="true" />
                 <element signature="e#4241#4242#0" expanded="true" />
                 <element signature="e#4266#4267#0" expanded="true" />
                 <element signature="e#4296#4297#0" expanded="true" />
@@ -158,8 +168,8 @@
       <file leaf-file-name="CacheManagerTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7326969">
-              <caret line="157" column="45" selection-start-line="157" selection-start-column="45" selection-end-line="157" selection-end-column="45" />
+            <state vertical-scroll-proportion="-8.539379">
+              <caret line="12" column="21" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="29" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -1385,22 +1395,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.CacheManagerTest.testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH">
-    <configuration default="false" name="WPBClientForMockServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="client.WPBClientForMockServer" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="bizsocket-core" />
-      <envs />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.CacheManagerTest">
     <configuration default="false" name="CacheManagerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="bizsocket-core" />
@@ -1410,32 +1405,6 @@
       <option name="MAIN_CLASS_NAME" value="com.dx168.bizsocket.core.CacheManagerTest" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-      <method />
-    </configuration>
-    <configuration default="false" name="CacheManagerTest.testRelativeMillisCacheEntry" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="com.dx168.bizsocket.core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="bizsocket-core" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.dx168.bizsocket.core" />
-      <option name="MAIN_CLASS_NAME" value="com.dx168.bizsocket.core.CacheManagerTest" />
-      <option name="METHOD_NAME" value="testRelativeMillisCacheEntry" />
-      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -1487,6 +1456,58 @@
       <option name="PACKAGE_NAME" value="com.dx168.bizsocket.core" />
       <option name="MAIN_CLASS_NAME" value="com.dx168.bizsocket.core.CacheManagerTest" />
       <option name="METHOD_NAME" value="testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.dx168.bizsocket.core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="bizsocket-core" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.dx168.bizsocket.core" />
+      <option name="MAIN_CLASS_NAME" value="com.dx168.bizsocket.core.CacheManagerTest" />
+      <option name="METHOD_NAME" value="testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.dx168.bizsocket.core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="bizsocket-core" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.dx168.bizsocket.core" />
+      <option name="MAIN_CLASS_NAME" value="com.dx168.bizsocket.core.CacheManagerTest" />
+      <option name="METHOD_NAME" value="testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -1839,19 +1860,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Application.WPBClientForMockServer" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.CacheManagerTest" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testRelativeMillisCacheEntry" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntry" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.CacheManagerTest" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntry" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.CacheManagerTest" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntry" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testRelativeMillisCacheEntry" />
-        <item index="4" class="java.lang.String" itemvalue="Application.WPBClientForMockServer" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.CacheManagerTest" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.CacheManagerTest.testCounterCacheEntry" />
       </list>
     </recent_temporary>
   </component>
@@ -1866,12 +1887,12 @@
       <option name="number" value="Default" />
       <updated>1475489114365</updated>
       <workItem from="1475489115773" duration="8448000" />
-      <workItem from="1475547603471" duration="48439000" />
+      <workItem from="1475547603471" duration="49683000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="56887000" />
+    <option name="totallyTimeSpent" value="58131000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="727" extended-state="6" />
@@ -1890,7 +1911,7 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32755905" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32956383" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32956383" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Gerrit" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1965,8 +1986,14 @@
           <properties />
           <option name="timeStamp" value="32" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java</url>
+          <line>231</line>
+          <properties />
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="34" />
+      <option name="time" value="35" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -2242,16 +2269,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bizsocket-core/src/test/java/common/WPBPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="33" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="33" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/ResponseHandler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -2300,7 +2317,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -2454,12 +2471,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/bizsocket-core/src/test/java/common/WPBPacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1909#1910#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="37" column="9" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#290#311#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheEntry.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
+          <caret line="207" column="20" selection-start-line="207" selection-start-column="13" selection-end-line="207" selection-end-column="20" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1601#1602#0" expanded="true" />
+            <element signature="e#1630#1631#0" expanded="true" />
+            <element signature="e#2826#2827#0" expanded="true" />
+            <element signature="e#2854#2855#0" expanded="true" />
             <element signature="e#4241#4242#0" expanded="true" />
             <element signature="e#4266#4267#0" expanded="true" />
             <element signature="e#4296#4297#0" expanded="true" />
@@ -2468,21 +2511,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bizsocket-core/src/main/java/com/dx168/bizsocket/core/CacheManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#290#311#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/bizsocket-core/src/test/java/com/dx168/bizsocket/core/CacheManagerTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7326969">
-          <caret line="157" column="45" selection-start-line="157" selection-start-column="45" selection-end-line="157" selection-end-column="45" />
+        <state vertical-scroll-proportion="-8.539379">
+          <caret line="12" column="21" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="29" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

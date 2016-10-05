@@ -182,6 +182,9 @@ class UseUtilSendCmdCacheEntry extends CacheEntry {
     }
 
     public void onSendCmd(int command) {
+        if (getEntry() == null) {
+            return;
+        }
         for (int cmd : conflictCommands) {
             if (cmd == command) {
                 expired = true;
@@ -216,6 +219,9 @@ class UseUtilReceiveCmdCacheEntry extends CacheEntry {
     }
 
     public void onReceiveCmd(int command) {
+        if (getEntry() == null) {
+            return;
+        }
         for (int cmd : conflictCommands) {
             if (cmd == command) {
                 expired = true;
