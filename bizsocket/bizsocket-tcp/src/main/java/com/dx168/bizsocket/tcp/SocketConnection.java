@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
@@ -25,6 +27,7 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
     protected final Collection<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
     protected final Collection<PacketListener> packetListeners = new CopyOnWriteArrayList<PacketListener>();
     protected final PacketFactory packetFactory;
+    protected final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
 
     private Socket socket;
     private String host;
@@ -52,6 +55,8 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
     @Override
     public void connect() throws Exception {
         disconnect();
+
+        logger.debug("connect host: " + host + " port: " + port);
         socket = createSocket(host,port);
 
         initConnection();
@@ -65,6 +70,7 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
     }
 
     public boolean connectAndStartWatch() {
+        logger.debug("connectAndStartWatch host: " + host + " port: " + port);
         try {
             bindReconnectionManager();
             connect();
@@ -78,36 +84,35 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
 
     @Override
     public void disconnect() {
-        try {
-            if (packetReader != null) {
-                packetReader.shutdown();
-            }
-        } catch (Throwable e) {
-            //e.printStackTrace();
-        }
-        try {
-            if (packetWriter != null) {
-                packetWriter.shutdown();
-            }
-        } catch (Throwable e) {
-            //e.printStackTrace();
-        }
-        stopHeartBeat();
         if (socket != null && !isSocketClosed()) {
-            if (socket != null && !isSocketClosed()) {
-                try {
-                    socket.close();
-                } catch (Exception e) {
-                    //e.printStackTrace();
+            logger.debug("disconnect");
+            try {
+                if (packetReader != null) {
+                    packetReader.shutdown();
                 }
-                try {
-                    socket.shutdownInput();
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-
-                socket = null;
+            } catch (Throwable e) {
+                //e.printStackTrace();
             }
+            try {
+                if (packetWriter != null) {
+                    packetWriter.shutdown();
+                }
+            } catch (Throwable e) {
+                //e.printStackTrace();
+            }
+            stopHeartBeat();
+            try {
+                socket.close();
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+            try {
+                socket.shutdownInput();
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+
+            socket = null;
 
             for (ConnectionListener connectionListener : connectionListeners) {
                 connectionListener.connectionClosed();

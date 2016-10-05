@@ -50,7 +50,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
         } catch (JSONException e) {
             return false;
         }
-        if (packet.getCommand() == WPBPacket.CMD_QUERY_ORDER_LIST) {
+        if (packet.getCommand() == WPBCmd.QUERY_ORDER_LIST.getValue()) {
             if (!WPBProtocolUtil.isSuccessResponsePacket(responsePacket)) {
                 return false;
             }
@@ -91,7 +91,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
                 return false;
             }
         }
-        else if (packet.getCommand() == WPBPacket.CMD_QUERY_ORDER_TYPE) {
+        else if (packet.getCommand() == WPBCmd.QUERY_ORDER_TYPE.getValue()) {
             if (orderIdArr == null) {
                 return false;
             }
@@ -124,7 +124,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
         }
 
         try {
-            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBPacket.CMD_QUERY_ORDER_TYPE,params.toString());
+            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(),params.toString());
         } catch (Throwable e) {
 
         }

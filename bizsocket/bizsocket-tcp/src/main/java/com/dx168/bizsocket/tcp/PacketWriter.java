@@ -3,6 +3,9 @@ package com.dx168.bizsocket.tcp;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
 import okio.BufferedSink;
 
 /**
@@ -16,6 +19,7 @@ class PacketWriter {
     private BufferedSink writer;
     private final BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(500, true);
     private volatile boolean done = false;
+    private final Logger logger = LoggerFactory.getLogger(PacketWriter.class.getSimpleName());
 
     public PacketWriter(SocketConnection connection) {
         this.connection = connection;
@@ -71,6 +75,7 @@ class PacketWriter {
             return;
         }
 
+        logger.debug("writer thread startup");
         writerThread.start();
     }
 
@@ -82,6 +87,7 @@ class PacketWriter {
      * Shuts the packet reader down. This method simply sets the 'done' flag to true.
      */
     public void shutdown() {
+        logger.debug("writer thread shutdown");
         this.done = true;
 
         synchronized (queue) {

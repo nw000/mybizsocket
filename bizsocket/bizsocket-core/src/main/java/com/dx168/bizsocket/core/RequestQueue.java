@@ -1,8 +1,9 @@
 package com.dx168.bizsocket.core;
 
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
 import com.dx168.bizsocket.core.signal.AbstractSerialContext;
 import com.dx168.bizsocket.core.signal.SerialSignal;
-import com.dx168.bizsocket.core.util.RequestContextQuoue;
 import com.dx168.bizsocket.tcp.ConnectionListener;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketListener;
@@ -15,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by tong on 16/3/7.
  */
 public class RequestQueue implements PacketListener,ConnectionListener {
+    private final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
     private final List<RequestContext> requestContextList = new RequestContextQuoue();
     private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
     private final List<AbstractSerialContext> mSerialContexts = new CopyOnWriteArrayList();
@@ -47,7 +49,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                 });
 
                 if (!contexts.isEmpty()) {
-                    //
+                    //TODO 如果发现重复需要选择一种策略,移除之前的把当前的添加进去，或者当前的不加入队列
                     return;
                 }
             }
@@ -127,7 +129,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         }
         else {
             //等待连接成功后发送
-            //Logger.e("connect closed ,wait ... ");
+            logger.debug("connect closed ,wait ... ");
         }
     }
 
@@ -152,10 +154,10 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                     throw new RuntimeException(e);
                 }
 
-                //Logger.d(TAG, "build serial context: " + serialContext);
+                logger.debug("build serial context: " + serialContext);
                 mSerialContexts.add(serialContext);
             } else {
-                //Logger.d(TAG, "repeat request: " + serialContext);
+                logger.debug("repeat request: " + serialContext);
             }
             return;
         }
@@ -237,6 +239,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
      * @param responsePacket
      */
     public void dispatchPacket(final Packet responsePacket) {
+        responsePacket.onDispatch();
         final int command = responsePacket.getCommand();
         final String packetID = responsePacket.getPacketID() == null ? "" : responsePacket.getPacketID();
         Collection<RequestContext> relativeContexts = getRequestContext(new Filter() {
@@ -297,14 +300,14 @@ public class RequestQueue implements PacketListener,ConnectionListener {
 
     @Override
     public void onSendSuccessful(Packet packet) {
-
+        packet.onSendSuccessful();
     }
 
     public boolean prepareDispatchPacket(Packet packet) {
         AbstractSerialContext serialContext = getSerialContext(packet);
         if (serialContext != null) {
             removeRequestContext(serialContext.getRequestContext());
-           // Logger.d(TAG, "about serial packet: " + packet);
+            logger.debug("about serial packet: " + packet);
             Packet processPacket = serialContext.processPacket(this,packet);
             if (processPacket == null) {
                 return false;
@@ -313,7 +316,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             removeRequestContext(serialContext.getRequestContext());
             boolean result = mSerialContexts.remove(serialContext);
             if (result) {
-                //Log.e(TAG, "serialContext remove: " + serialContext);
+                logger.debug("serialContext remove: " + serialContext);
             }
         }
         return true;
@@ -322,6 +325,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
 
     @Override
     public void processPacket(Packet packet) {
+        packet.onReceiveFromServer();
         if (prepareDispatchPacket(packet)) {
             dispatchPacket(packet);
         }

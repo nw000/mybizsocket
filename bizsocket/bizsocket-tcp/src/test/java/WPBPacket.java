@@ -72,6 +72,11 @@ public class WPBPacket extends Packet {
     }
 
     @Override
+    public String getContent() {
+        return content;
+    }
+
+    @Override
     public int getCommand() {
         return cmd;
     }
@@ -79,6 +84,11 @@ public class WPBPacket extends Packet {
     @Override
     public void setCommand(int command) {
         this.cmd = command;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
     }
 
     @Override

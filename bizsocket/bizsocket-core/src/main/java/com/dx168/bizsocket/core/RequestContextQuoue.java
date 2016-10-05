@@ -1,4 +1,4 @@
-package com.dx168.bizsocket.core.util;
+package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.core.RequestContext;
 import java.util.Collection;

@@ -1,16 +1,23 @@
 package com.dx168.bizsocket.tcp;
 
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
+
 /**
  * Base class for tcp packets. Every packet has a unique ID (which is automatically
  * generated, but can be overridden).
  */
 public abstract class Packet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Packet.class.getSimpleName());
+
     private long longPacketId;
 
     /**
      * Returns the packet as bytes.
      */
     public abstract byte[] toBytes();
+
+    public abstract String getContent();
 
     /**
      * Returns the unique ID of the packet.
@@ -28,5 +35,26 @@ public abstract class Packet {
             longPacketId = Long.MAX_VALUE;
         }
         return String.valueOf(Long.valueOf(longPacketId));
+    }
+
+    /**
+     * 获取包的描述
+     * @return
+     */
+    public abstract String getDescription();
+
+
+    public void onSendSuccessful() {
+        LOGGER.debug("-------------------send packet: " + getCommand() + " ,desc: " + getDescription() + ", id: " + getPacketID());
+        LOGGER.debug("-------------------send content: " + getContent());
+    }
+
+    public void onReceiveFromServer() {
+
+    }
+
+    public void onDispatch() {
+        LOGGER.debug("-------------------receive: cmd: " + getCommand() + ", id: " + getPacketID() + " ,desc: " + getDescription());
+        LOGGER.debug("-------------------receive: content: " + getContent());
     }
 }

@@ -16,17 +16,6 @@ import java.util.Map;
  */
 public class WPBPacket extends Packet {
     static volatile int currentSeq = 0;
-    //查询白银报价
-    public static final int CMD_WEBSOCKET = 8888;
-    //白银报价通知
-    public static final int CMD_PRICE = 1;
-    //创建订单
-    public static final int CMD_CREATE_ORDER = 2;
-    //查询持仓单
-    public static final int CMD_QUERY_ORDER_LIST = 10006;
-    //查询当前持仓单类型
-    public static final int CMD_QUERY_ORDER_TYPE = 51009;
-
     public int length;
     public int cmd;
     public int seq;
@@ -95,6 +84,11 @@ public class WPBPacket extends Packet {
     }
 
     @Override
+    public String getDescription() {
+        return WPBCmd.fromValue(getCommand()).getDesc();
+    }
+
+    @Override
     public String getPacketID() {
         return String.valueOf(seq);
     }
@@ -109,6 +103,7 @@ public class WPBPacket extends Packet {
         }
     }
 
+    @Override
     public String getContent() {
         return content;
     }

@@ -1,5 +1,7 @@
 package com.dx168.bizsocket.tcp;
 
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
 import okio.BufferedSource;
 
 /**
@@ -11,6 +13,7 @@ class PacketReader {
     private final SocketConnection connection;
     private BufferedSource reader;
     volatile boolean done = false;
+    private final Logger logger = LoggerFactory.getLogger(PacketReader.class.getSimpleName());
 
     public PacketReader(SocketConnection connection) {
         this.connection = connection;
@@ -42,7 +45,7 @@ class PacketReader {
      */
     public synchronized void startup() {
         done = false;
-
+        logger.debug("reader thread startup");
         readerThread.start();
     }
 
@@ -52,6 +55,7 @@ class PacketReader {
     public void shutdown() {
         done = true;
 
+        logger.debug("reader thread shutdown");
         readerThread.interrupt();
     }
 

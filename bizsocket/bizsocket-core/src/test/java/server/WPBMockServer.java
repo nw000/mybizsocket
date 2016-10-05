@@ -1,5 +1,6 @@
 package server;
 
+import common.WPBCmd;
 import common.WPBPacket;
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -54,7 +55,7 @@ public class WPBMockServer {
 
                 for (ConnectThread connectThread : connections) {
                     try {
-                        connectThread.writePacket(new WPBPacket(WPBPacket.CMD_PRICE,0,params.toString()));
+                        connectThread.writePacket(new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),0,params.toString()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -114,9 +115,9 @@ public class WPBMockServer {
 
         private void handleRequest(WPBPacket packet) throws IOException {
             System.out.println("handleRequest: " + packet);
-            int cmd = packet.cmd;
+            WPBCmd cmd = WPBCmd.fromValue(packet.cmd);
             switch (cmd) {
-                case WPBPacket.CMD_PRICE: {
+                case NOTIFY_PRICE: {
                     DecimalFormat decimalFormat = new DecimalFormat("0.000");
                     Map<String,String> map = new HashMap<String, String>();
                     map.put("code","200");
@@ -126,7 +127,7 @@ public class WPBMockServer {
                     writePacket(packet);
                 }
                 break;
-                case WPBPacket.CMD_CREATE_ORDER: {
+                case CREATE_ORDER: {
                     Map<String,String> params = json2map(packet.content);
                     int productId = -1;
                     try {
@@ -148,7 +149,7 @@ public class WPBMockServer {
                     writePacket(packet);
                 }
                 break;
-                case WPBPacket.CMD_QUERY_ORDER_LIST:{
+                case QUERY_ORDER_LIST:{
                     JSONObject jobj = new JSONObject();
                     try {
                         jobj.put("code","200");
@@ -174,7 +175,7 @@ public class WPBMockServer {
                     writePacket(packet);
                 }
                 break;
-                case WPBPacket.CMD_QUERY_ORDER_TYPE:{
+                case QUERY_ORDER_TYPE:{
                     JSONObject jobj = new JSONObject();
                     try {
                         JSONObject params = new JSONObject(packet.content);
