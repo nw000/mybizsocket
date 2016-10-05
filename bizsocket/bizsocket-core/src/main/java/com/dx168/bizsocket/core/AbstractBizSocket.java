@@ -14,6 +14,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     protected final SocketConnection socketConnection;
     protected final RequestQueue requestQueue;
     protected final MultiNotifyRouter multiNotifyRouter;
+    protected final CacheManager cacheManager;
 
     protected abstract PacketFactory createPacketFactory();
 
@@ -33,6 +34,8 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
             }
         });
+        cacheManager = new CacheManager();
+        getInterceptorChain().addInterceptor(new CacheInterceptor(cacheManager));
     }
 
     @Override
@@ -109,6 +112,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
     public RequestQueue getRequestQueue() {
         return requestQueue;
+    }
+
+    public void addSerialSignal(SerialSignal serialSignal) {
+        getRequestQueue().addSerialSignal(serialSignal);
     }
 
     public InterceptorChain getInterceptorChain() {

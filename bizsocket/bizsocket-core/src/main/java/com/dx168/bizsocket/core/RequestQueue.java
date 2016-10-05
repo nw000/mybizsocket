@@ -2,8 +2,6 @@ package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.common.Logger;
 import com.dx168.bizsocket.common.LoggerFactory;
-import com.dx168.bizsocket.core.signal.AbstractSerialContext;
-import com.dx168.bizsocket.core.signal.SerialSignal;
 import com.dx168.bizsocket.tcp.ConnectionListener;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketListener;

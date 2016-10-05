@@ -2,8 +2,8 @@ package client;
 
 import com.dx168.bizsocket.core.RequestContext;
 import com.dx168.bizsocket.core.RequestQueue;
-import com.dx168.bizsocket.core.signal.AbstractSerialContext;
-import com.dx168.bizsocket.core.signal.SerialSignal;
+import com.dx168.bizsocket.core.AbstractSerialContext;
+import com.dx168.bizsocket.core.SerialSignal;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
 import common.*;

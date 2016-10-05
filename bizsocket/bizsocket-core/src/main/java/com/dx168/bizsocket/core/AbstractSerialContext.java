@@ -1,7 +1,5 @@
-package com.dx168.bizsocket.core.signal;
+package com.dx168.bizsocket.core;
 
-import com.dx168.bizsocket.core.RequestContext;
-import com.dx168.bizsocket.core.RequestQueue;
 import com.dx168.bizsocket.tcp.Packet;
 
 /**

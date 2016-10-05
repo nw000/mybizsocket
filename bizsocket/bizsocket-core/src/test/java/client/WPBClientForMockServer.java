@@ -1,7 +1,7 @@
 package client;
 
 import com.dx168.bizsocket.core.*;
-import com.dx168.bizsocket.core.signal.SerialSignal;
+import com.dx168.bizsocket.core.SerialSignal;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
 import common.WPBCmd;
@@ -9,6 +9,7 @@ import common.WPBPacket;
 import okio.BufferedSource;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tong on 16/10/3.
@@ -16,9 +17,6 @@ import java.util.Map;
 public class WPBClientForMockServer extends AbstractBizSocket implements PacketFactory {
     public WPBClientForMockServer(Configuration configuration) {
         super(configuration);
-
-        getRequestQueue().addSerialSignal(new SerialSignal(OrderListSerialContext.class, WPBCmd.QUERY_ORDER_LIST.getValue(),
-                new int[]{WPBCmd.QUERY_ORDER_LIST.getValue(), WPBCmd.QUERY_ORDER_TYPE.getValue()}));
     }
 
     @Override
@@ -47,20 +45,30 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
     }
 
     public static void main(String[] args) {
+        if (true) {
+            String str = "{\"key\" : \"value\"}";
+            String str2 = new String("{\"key\" : \"value\"}");
+
+            System.out.println(str.hashCode() + "  " + str2.hashCode());
+            return;
+        }
         WPBClientForMockServer client = new WPBClientForMockServer(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(9103)
                 .build());
+        client.addSerialSignal(new SerialSignal(OrderListSerialContext.class, WPBCmd.QUERY_ORDER_LIST.getValue(),
+                new int[]{WPBCmd.QUERY_ORDER_LIST.getValue(), WPBCmd.QUERY_ORDER_TYPE.getValue()}));
+
         client.getInterceptorChain().addInterceptor(new Interceptor() {
             @Override
             public boolean postRequestHandle(RequestContext context) throws Exception {
-                System.out.println("发现一个请求: " + context);
+                System.out.println("发现一个请求postRequestHandle: " + context);
                 return false;
             }
 
             @Override
             public boolean postResponseHandle(int command, Packet responsePacket) throws Exception {
-                System.out.println("收到一个包: " + responsePacket);
+                System.out.println("收到一个包postResponseHandle: " + responsePacket);
                 return false;
             }
         });

@@ -1,4 +1,4 @@
-package com.dx168.bizsocket.core.signal;
+package com.dx168.bizsocket.core;
 
 import java.util.Arrays;
 
