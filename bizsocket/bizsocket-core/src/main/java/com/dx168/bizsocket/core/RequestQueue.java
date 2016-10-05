@@ -20,11 +20,13 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     private final List<RequestContext> requestContextList = new RequestContextQuoue();
     private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
     private final List<AbstractSerialContext> mSerialContexts = new CopyOnWriteArrayList();
+    private final InterceptorChain interceptorChain;
     private final AbstractBizSocket bizSocket;
     private ResponseHandler globalNotifyHandler;
 
     public RequestQueue(AbstractBizSocket bizSocket) {
         this.bizSocket = bizSocket;
+        interceptorChain = new InterceptorChain();
 
         bizSocket.getSocketConnection().addPacketListener(this);
         bizSocket.getSocketConnection().addConnectionListener(this);
@@ -61,7 +63,17 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             }
             //context.onAddToQuote();
             if ((context.getFlags() & RequestContext.FLAG_REQUEST) != 0) {
-                sendRequest(context);
+
+                InterceptorChain chain = getInterceptorChain();
+                boolean result = chain.invokePostRequestHandle(context);
+                if (result) {
+                    RequestInterceptedException exception = new RequestInterceptedException("请求被拦截");
+                    context.sendFailureMessage(context.getRequestCommand(), exception);
+                    removeRequestContext(context);
+                }
+                else {
+                    sendRequest(context);
+                }
             }
         }
     }
@@ -322,17 +334,28 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         return true;
     }
 
-
     @Override
     public void processPacket(Packet packet) {
+        if (packet == null) {
+            return;
+        }
         packet.onReceiveFromServer();
         if (prepareDispatchPacket(packet)) {
+            boolean intercepted = getInterceptorChain().invokePesponseHandle(packet.getCommand(),packet);
+            if (intercepted) {
+                return;
+            }
+
             dispatchPacket(packet);
         }
     }
 
     public AbstractBizSocket getBizSocket() {
         return bizSocket;
+    }
+
+    public InterceptorChain getInterceptorChain() {
+        return interceptorChain;
     }
 
     public void setGlobalNotifyHandler(ResponseHandler globalNotifyHandler) {

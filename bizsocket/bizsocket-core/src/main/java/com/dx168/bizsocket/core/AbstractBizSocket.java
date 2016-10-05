@@ -111,6 +111,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         return requestQueue;
     }
 
+    public InterceptorChain getInterceptorChain() {
+        return getRequestQueue().getInterceptorChain();
+    }
+
     protected RequestContext buildRequestContext(Object tag, int command, String body, Map<String, String> attach, ResponseHandler responseHandler) {
         Packet packet = getPacketFactory().buildRequestPacket(command,body);
         RequestContext requestContext = new RequestContext();

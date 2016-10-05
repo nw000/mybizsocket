@@ -1,8 +1,6 @@
 package client;
 
-import com.dx168.bizsocket.core.AbstractBizSocket;
-import com.dx168.bizsocket.core.Configuration;
-import com.dx168.bizsocket.core.ResponseHandler;
+import com.dx168.bizsocket.core.*;
 import com.dx168.bizsocket.core.signal.SerialSignal;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
@@ -53,6 +51,19 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
                 .host("127.0.0.1")
                 .port(9103)
                 .build());
+        client.getInterceptorChain().addInterceptor(new Interceptor() {
+            @Override
+            public boolean postRequestHandle(RequestContext context) throws Exception {
+                System.out.println("发现一个请求: " + context);
+                return false;
+            }
+
+            @Override
+            public boolean postResponseHandle(int command, Packet responsePacket) throws Exception {
+                System.out.println("收到一个包: " + responsePacket);
+                return false;
+            }
+        });
         try {
             client.connect();
         } catch (Exception e) {
