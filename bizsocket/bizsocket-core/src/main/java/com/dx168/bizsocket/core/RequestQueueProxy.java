@@ -1,9 +1,7 @@
-package com.dx168.bizsocket.core.signal;
+package com.dx168.bizsocket.core;
 
-import com.dx168.bizsocket.core.AbstractBizSocket;
-import com.dx168.bizsocket.core.RequestContext;
-import com.dx168.bizsocket.core.RequestQueue;
-import com.dx168.bizsocket.core.ResponseHandler;
+import com.dx168.bizsocket.core.signal.AbstractSerialContext;
+import com.dx168.bizsocket.core.signal.SerialSignal;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.SocketConnection;
 import java.lang.reflect.InvocationTargetException;

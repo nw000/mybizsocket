@@ -1,8 +1,11 @@
+package common;
+
 import com.dx168.bizsocket.tcp.Packet;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;
 import okio.Okio;
+import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,9 +17,15 @@ import java.util.Map;
 public class WPBPacket extends Packet {
     static volatile int currentSeq = 0;
     //查询白银报价
-    public static final int CMD_PRICE = 1;
-    public static final int CMD_CREATE_ORDER = 2;
     public static final int CMD_WEBSOCKET = 8888;
+    //白银报价通知
+    public static final int CMD_PRICE = 1;
+    //创建订单
+    public static final int CMD_CREATE_ORDER = 2;
+    //查询持仓单
+    public static final int CMD_QUERY_ORDER_LIST = 10006;
+    //查询当前持仓单类型
+    public static final int CMD_QUERY_ORDER_TYPE = 51009;
 
     public int length;
     public int cmd;
@@ -49,7 +58,11 @@ public class WPBPacket extends Packet {
     }
 
     public void setResponse(Map<String,String> map) {
-        this.content = WPBMockServer.map2json(map);
+        this.content = server.WPBMockServer.map2json(map);
+    }
+
+    public void setResponse(JSONObject jobj) {
+        this.content =jobj.toString();
     }
 
     @Override
@@ -77,12 +90,31 @@ public class WPBPacket extends Packet {
     }
 
     @Override
+    public void setCommand(int command) {
+        this.cmd = command;
+    }
+
+    @Override
     public String getPacketID() {
         return String.valueOf(seq);
     }
 
+    @Override
+    public void setPacketID(String packetID) {
+        try {
+            int id = Integer.valueOf(packetID);
+            this.seq = id;
+        } catch (NumberFormatException e) {
+
+        }
+    }
+
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override

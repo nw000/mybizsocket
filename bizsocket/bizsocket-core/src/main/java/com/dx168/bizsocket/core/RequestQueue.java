@@ -2,26 +2,23 @@ package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.core.signal.AbstractSerialContext;
 import com.dx168.bizsocket.core.signal.SerialSignal;
+import com.dx168.bizsocket.core.util.RequestContextQuoue;
 import com.dx168.bizsocket.tcp.ConnectionListener;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketListener;
 import com.dx168.bizsocket.tcp.SocketConnection;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by tong on 16/3/7.
  */
 public class RequestQueue implements PacketListener,ConnectionListener {
-    protected final List<RequestContext> requestContextList = Collections.synchronizedList(new ArrayList<RequestContext>());
-    private static final List<SerialSignal> SERIAL_SIGNAL_LIST = new ArrayList<SerialSignal>();
+    private final List<RequestContext> requestContextList = new RequestContextQuoue();
+    private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
     private final List<AbstractSerialContext> mSerialContexts = new CopyOnWriteArrayList();
-
-    protected final AbstractBizSocket bizSocket;
+    private final AbstractBizSocket bizSocket;
     private ResponseHandler globalNotifyHandler;
 
     public RequestQueue(AbstractBizSocket bizSocket) {
@@ -60,10 +57,58 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             else {
                 requestContextList.add(context);
             }
+            //context.onAddToQuote();
             if ((context.getFlags() & RequestContext.FLAG_REQUEST) != 0) {
                 sendRequest(context);
             }
         }
+    }
+
+    /**
+     * 加入队列前准备上下文
+     * @param requestContext
+     */
+    private void prepareContext(final RequestContext requestContext) {
+        if ((requestContext.getFlags() & RequestContext.FLAG_REQUEST) == 0) {
+            throw new IllegalStateException("Invalid request context!");
+        }
+        requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
+            @Override
+            public void onRequestTimeout(RequestContext context) {
+                //请求超时
+                RequestTimeoutException exception = new RequestTimeoutException("网络异常，请检查网络连接");
+                context.sendFailureMessage(context.getRequestCommand(), exception);
+                removeRequestContext(context);
+            }
+        });
+    }
+
+    public void removeRequestContext(final RequestContext context) {
+        removeRequestContexts(new ArrayList<RequestContext>(){{add(context);}});
+    }
+
+    public void removeRequestContexts(Collection<RequestContext> requestContexts) {
+        if (requestContexts == null) {
+            return;
+        }
+//        for (RequestContext context : requestContexts) {
+//            context.onRemoveFromQuoue();
+//        }
+        requestContextList.removeAll(requestContexts);
+    }
+
+    public Collection<RequestContext> getRequestContext(Filter filter) {
+        if (filter == null) {
+            throw new RuntimeException("filter can not be null");
+        }
+        List<RequestContext> resultList = new ArrayList<RequestContext>();
+        for (int i = 0;i < requestContextList.size();i++) {
+            RequestContext context = requestContextList.get(i);
+            if (filter.filter(context)) {
+                resultList.add(context);
+            }
+        }
+        return resultList;
     }
 
     public void sendRequest(RequestContext context) {
@@ -79,10 +124,6 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                     removeRequestContext(context);
                 }
             }
-            else {
-                //TODO
-
-            }
         }
         else {
             //等待连接成功后发送
@@ -93,10 +134,10 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     public boolean sendPacket(Packet requestPacket) {
         if (bizSocket.getSocketConnection() != null) {
             bizSocket.getSocketConnection().sendPacket(requestPacket);
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public void onPacketSend(RequestContext context) {
@@ -167,7 +208,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
      */
     private SerialSignal getSerialSignal(Integer entranceCommand) {
         if (entranceCommand != null) {
-            for (SerialSignal signal : SERIAL_SIGNAL_LIST) {
+            for (SerialSignal signal : serialSignalList) {
                 if (signal.getEntranceCommand() == entranceCommand) {
                     return signal;
                 }
@@ -187,51 +228,8 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         return null;
     }
 
-    /**
-     * 加入队列前准备上下文
-     * @param requestContext
-     */
-    private void prepareContext(final RequestContext requestContext) {
-        if ((requestContext.getFlags() & RequestContext.FLAG_REQUEST) == 0) {
-            throw new IllegalStateException("Invalid request context!");
-        }
-        requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
-            @Override
-            public void onRequestTimeout(RequestContext context) {
-                //请求超时
-                RequestTimeoutException exception = new RequestTimeoutException("网络异常，请检查网络连接");
-                context.sendFailureMessage(context.getRequestCommand(), exception);
-                removeRequestContext(context);
-            }
-        });
-    }
-
-    public void removeRequestContext(final RequestContext context) {
-        removeRequestContexts(new ArrayList<RequestContext>(){{add(context);}});
-    }
-
-    public void removeRequestContexts(Collection<RequestContext> requestContexts) {
-        if (requestContexts == null) {
-            return;
-        }
-        for (RequestContext context : requestContexts) {
-            context.onRemoveFromQuoue();
-        }
-        requestContextList.removeAll(requestContexts);
-    }
-
-    public Collection<RequestContext> getRequestContext(Filter filter) {
-        if (filter == null) {
-            throw new RuntimeException("filter can not be null");
-        }
-        List<RequestContext> resultList = new ArrayList<RequestContext>();
-        for (int i = 0;i < requestContextList.size();i++) {
-            RequestContext context = requestContextList.get(i);
-            if (filter.filter(context)) {
-                resultList.add(context);
-            }
-        }
-        return resultList;
+    public void addSerialSignal(SerialSignal serialSignal) {
+        serialSignalList.add(serialSignal);
     }
 
     /**
@@ -305,12 +303,14 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     public boolean prepareDispatchPacket(Packet packet) {
         AbstractSerialContext serialContext = getSerialContext(packet);
         if (serialContext != null) {
+            removeRequestContext(serialContext.getRequestContext());
            // Logger.d(TAG, "about serial packet: " + packet);
             Packet processPacket = serialContext.processPacket(this,packet);
             if (processPacket == null) {
                 return false;
             }
 
+            removeRequestContext(serialContext.getRequestContext());
             boolean result = mSerialContexts.remove(serialContext);
             if (result) {
                 //Log.e(TAG, "serialContext remove: " + serialContext);

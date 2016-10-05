@@ -108,7 +108,7 @@ public abstract class AbstractFragmentRequestQueue<T extends Packet> extends Req
         return fragmentInfo.getPackets() != null
                 && fragmentInfo.getPackets().size() == fragmentInfo.getTotalSize();
     }
-    
+
     /**
      * 分段数据
      * @param <T>

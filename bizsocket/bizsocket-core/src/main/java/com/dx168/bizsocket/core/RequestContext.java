@@ -143,10 +143,6 @@ public class RequestContext implements ResponseHandler {
         return attachInfo;
     }
 
-    public void onRemoveFromQuoue() {
-
-    }
-
     public void startTimeoutTimer() {
         if (timer != null) {
             timer.cancel();
@@ -170,6 +166,16 @@ public class RequestContext implements ResponseHandler {
 
     public void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
+    }
+
+    public void onAddToQuote() {
+        startTimeoutTimer();
+    }
+
+    public void onRemoveFromQuoue() {
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
     public interface OnRequestTimeoutListener {

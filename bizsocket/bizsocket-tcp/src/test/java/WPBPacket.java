@@ -77,8 +77,22 @@ public class WPBPacket extends Packet {
     }
 
     @Override
+    public void setCommand(int command) {
+        this.cmd = command;
+    }
+
+    @Override
     public String getPacketID() {
         return String.valueOf(seq);
+    }
+
+    @Override
+    public void setPacketID(String packetID) {
+        try {
+            this.seq = Integer.valueOf(packetID);
+        } catch (NumberFormatException e) {
+
+        }
     }
 
 

@@ -1,6 +1,12 @@
+package server;
+
+import common.WPBPacket;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -37,14 +43,18 @@ public class WPBMockServer {
             boolean flag = true;
             while (flag) {
                 DecimalFormat decimalFormat = new DecimalFormat("0.000");
-                Map<String,String> map = new HashMap<String, String>();
-                map.put("code","200");
-                map.put("result",decimalFormat.format(((new Random().nextInt(500) + 4000) * 0.001)));
-                map.put("lastPrice",decimalFormat.format(((new Random().nextInt(500) + 4000) * 0.001)));
+                JSONObject params = new JSONObject();
+                try {
+                    params.put("code","200");
+                    params.put("result",decimalFormat.format(((new Random().nextInt(500) + 4000) * 0.001)));
+                    params.put("lastPrice",decimalFormat.format(((new Random().nextInt(500) + 4000) * 0.001)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 for (ConnectThread connectThread : connections) {
                     try {
-                        connectThread.writePacket(new WPBPacket(WPBPacket.CMD_PRICE,0,map2json(map)));
+                        connectThread.writePacket(new WPBPacket(WPBPacket.CMD_PRICE,0,params.toString()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -135,6 +145,55 @@ public class WPBMockServer {
                     map.put("msg","订单创建成功");
                     map.putAll(params);
                     packet.setResponse(map);
+                    writePacket(packet);
+                }
+                break;
+                case WPBPacket.CMD_QUERY_ORDER_LIST:{
+                    JSONObject jobj = new JSONObject();
+                    try {
+                        jobj.put("code","200");
+                        jobj.put("msg","查询成功");
+                        JSONArray result = new JSONArray();
+                        jobj.put("result",result);
+                        JSONObject order1 = new JSONObject();
+                        order1.put("orderId",1000);
+                        order1.put("productId","2");
+                        order1.put("sl","1");
+                        result.put(order1);
+
+                        JSONObject order2 = new JSONObject();
+                        order2.put("orderId",1001);
+                        order2.put("productId","3");
+                        order2.put("sl","10");
+                        result.put(order2);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    packet.setResponse(jobj);
+                    writePacket(packet);
+                }
+                break;
+                case WPBPacket.CMD_QUERY_ORDER_TYPE:{
+                    JSONObject jobj = new JSONObject();
+                    try {
+                        JSONObject params = new JSONObject(packet.content);
+                        int orderId = params.optInt("orderId", -1);
+                        if (orderId != 1000 && orderId != 1001) {
+                            jobj.put("code","-1");
+                            jobj.put("msg","订单类型id不正确");
+                        }
+                        else {
+                            jobj.put("code","200");
+                            jobj.put("msg","查询成功");
+                            jobj.put("orderId",orderId);
+                            jobj.put("orderType",orderId == 1000 ? 1 : 2);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    packet.setResponse(jobj);
                     writePacket(packet);
                 }
                 break;

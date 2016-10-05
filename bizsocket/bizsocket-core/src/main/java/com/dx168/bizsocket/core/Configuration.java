@@ -17,7 +17,7 @@ public class Configuration {
     Configuration() {
     }
 
-    protected Configuration(int readTimeout, String host, int port, int heartbeat, boolean useSSL) {
+    protected Configuration(int readTimeout, String host, int port, int heartbeat) {
         this.readTimeout = readTimeout;
         this.host = host;
         this.port = port;
@@ -108,7 +108,7 @@ public class Configuration {
         }
 
         public Configuration build() {
-            if (configuration.readTimeout <= 10) {
+            if (configuration.readTimeout < 5) {
                 configuration.setReadTimeout(DEFAULT_READ_TIMEOUT);
             }
             if (configuration.getHost() == null || "".equals(configuration.getHost().trim())) {

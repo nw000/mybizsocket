@@ -5,19 +5,23 @@ package com.dx168.bizsocket.tcp;
  * generated, but can be overridden).
  */
 public abstract class Packet {
-    protected long longPacketId;
+    private long longPacketId;
 
     /**
      * Returns the packet as bytes.
      */
     public abstract byte[] toBytes();
 
-    public abstract int getCommand();
-
     /**
      * Returns the unique ID of the packet.
      */
     public abstract String getPacketID();
+
+    public abstract void setPacketID(String packetID);
+
+    public abstract int getCommand();
+
+    public abstract void setCommand(int command);
 
     public String nextPacketID() {
         if (longPacketId == Long.MAX_VALUE) {
