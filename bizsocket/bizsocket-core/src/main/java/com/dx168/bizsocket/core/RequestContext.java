@@ -2,7 +2,6 @@ package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.tcp.Packet;
 import okio.ByteString;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -66,16 +65,8 @@ public class RequestContext implements ResponseHandler {
 
     private Timer timer;
     private ByteString requestBody;
-    private int readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
+    private long readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
     private Packet lastSendPacket;
-
-    public void addFlag(int flag) {
-        this.flags |= flag;
-    }
-
-    public void removeFlag(int flag) {
-        this.flags &= ~flag;
-    }
 
     public int getFlags() {
         return flags;
@@ -163,7 +154,7 @@ public class RequestContext implements ResponseHandler {
         return requestBody;
     }
 
-    public void setReadTimeout(int readTimeout) {
+    public void setReadTimeout(long readTimeout) {
         this.readTimeout = readTimeout;
     }
 
@@ -174,6 +165,7 @@ public class RequestContext implements ResponseHandler {
     public void onRemoveFromQuoue() {
         if (timer != null) {
             timer.cancel();
+            timer = null;
         }
     }
 

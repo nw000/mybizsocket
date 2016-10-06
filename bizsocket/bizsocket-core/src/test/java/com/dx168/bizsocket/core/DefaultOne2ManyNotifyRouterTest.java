@@ -109,4 +109,39 @@ public class DefaultOne2ManyNotifyRouterTest extends TestCase {
             }
         }
     }
+
+    @Test
+    public void testUnSubscribe2() throws Exception{
+        ResponseHandler responseHandler = new ResponseHandler() {
+            @Override
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
+                receivePacket = (WPBPacket) responsePacket;
+            }
+
+            @Override
+            public void sendFailureMessage(int command, Throwable error) {
+
+            }
+        };
+        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), One2ManyNotifyRouter.FLAG_DEFAULT, responseHandler);
+
+        WPBPacket packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{}"));
+
+        for (int i = 0; i < 5; i++) {
+            if (i == 0) {
+                receivePacket = null;
+                router.route(WPBCmd.NOTIFY_PRICE.getValue(),packet);
+                assertEquals(packet,receivePacket);
+                router.unsubscribe(new Object());
+                assertEquals(packet,receivePacket);
+                router.unsubscribe(this);
+
+                receivePacket = null;
+            }
+            else {
+                router.route(WPBCmd.NOTIFY_PRICE.getValue(),packet);
+                assertNull(receivePacket);
+            }
+        }
+    }
 }

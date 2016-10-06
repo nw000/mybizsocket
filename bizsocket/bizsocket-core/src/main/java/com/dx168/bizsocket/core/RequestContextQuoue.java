@@ -1,6 +1,5 @@
 package com.dx168.bizsocket.core;
 
-import com.dx168.bizsocket.core.RequestContext;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -10,28 +9,69 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RequestContextQuoue extends CopyOnWriteArrayList<RequestContext> {
     @Override
     public boolean remove(Object o) {
-        boolean result =  super.remove(o);
-        if (result && o != null) {
+        if (o != null) {
             RequestContext requestContext = (RequestContext) o;
-            requestContext.onRemoveFromQuoue();
+            beforeRemove(requestContext);
         }
-        return result;
+        return super.remove(o);
+    }
+
+    @Override
+    public RequestContext remove(int index) {
+        RequestContext requestContext = super.remove(index);
+        beforeRemove(requestContext);
+        return requestContext;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
         Collection<RequestContext> collection = (Collection<RequestContext>) c;
         for (RequestContext context : collection) {
-            context.onRemoveFromQuoue();
+            beforeRemove(context);
         }
         return super.removeAll(c);
     }
 
     @Override
-    public boolean add(RequestContext requestContext) {
-        if (requestContext != null) {
-            requestContext.onAddToQuote();
+    public void clear() {
+        for (RequestContext context : this) {
+            beforeRemove(context);
         }
+        super.clear();
+    }
+
+    @Override
+    public boolean add(RequestContext requestContext) {
+        beforeAdd(requestContext);
         return super.add(requestContext);
+    }
+
+    @Override
+    public void add(int index, RequestContext element) {
+        beforeAdd(element);
+        super.add(index, element);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends RequestContext> c) {
+        Collection<RequestContext> collection = (Collection<RequestContext>) c;
+        for (RequestContext context : collection) {
+            beforeAdd(context);
+        }
+        return super.addAll(c);
+    }
+
+    private void beforeAdd(RequestContext requestContext) {
+        if (requestContext != null) {
+            if (!contains(requestContext)) {
+                requestContext.onAddToQuote();
+            }
+        }
+    }
+
+    private void beforeRemove(RequestContext requestContext) {
+        if (requestContext != null) {
+            requestContext.onRemoveFromQuoue();
+        }
     }
 }

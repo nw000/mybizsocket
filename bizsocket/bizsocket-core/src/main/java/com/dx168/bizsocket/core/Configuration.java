@@ -1,5 +1,7 @@
 package com.dx168.bizsocket.core;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by tong on 16/3/7.
  */
@@ -7,7 +9,7 @@ public class Configuration {
     public static final int DEFAULT_READ_TIMEOUT = 30;
     public static final int HEART_BEAT_INTERVAL = 20;
 
-    private int readTimeout = DEFAULT_READ_TIMEOUT;
+    private long readTimeout = DEFAULT_READ_TIMEOUT;
     private String host;//socket server host
     private int port;//端口
     private int heartbeat;//心跳间隔
@@ -40,7 +42,7 @@ public class Configuration {
         this.port = port;
     }
 
-    public int getReadTimeout() {
+    public long getReadTimeout() {
         return readTimeout;
     }
 
@@ -48,7 +50,7 @@ public class Configuration {
      * 设置超时时间(单位是秒)
      * @param readTimeout
      */
-    public void setReadTimeout(int readTimeout) {
+    public void setReadTimeout(long readTimeout) {
         this.readTimeout = readTimeout;
     }
 
@@ -87,8 +89,8 @@ public class Configuration {
             this.configuration = new Configuration();
         }
 
-        public Builder readTimeout(int timeout) {
-            configuration.setReadTimeout(timeout);
+        public Builder readTimeout(TimeUnit unit,long duration) {
+            configuration.setReadTimeout(unit.toSeconds(duration));
             return this;
         }
 

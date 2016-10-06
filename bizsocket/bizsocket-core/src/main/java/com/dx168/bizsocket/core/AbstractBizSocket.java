@@ -6,8 +6,6 @@ import com.dx168.bizsocket.tcp.PacketFactory;
 import com.dx168.bizsocket.tcp.SocketConnection;
 import okio.ByteString;
 
-import java.util.Map;
-
 /**
  * Created by tong on 16/10/4.
  */
@@ -135,7 +133,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     protected RequestContext buildRequestContext(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
         Packet packet = getPacketFactory().buildRequestPacket(command,requestBody);
         RequestContext requestContext = new RequestContext();
-        requestContext.addFlag(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
+        requestContext.setFlags(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
         requestContext.setRequestCommand(command);
         requestContext.setRequestBody(requestBody);
         requestContext.setTag(tag);
