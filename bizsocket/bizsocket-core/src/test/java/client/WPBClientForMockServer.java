@@ -7,9 +7,8 @@ import com.dx168.bizsocket.tcp.PacketFactory;
 import common.WPBCmd;
 import common.WPBPacket;
 import okio.BufferedSource;
+import okio.ByteString;
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tong on 16/10/3.
@@ -25,8 +24,8 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
     }
 
     @Override
-    public Packet buildRequestPacket(int command, String body) {
-        return new common.WPBPacket(command,body);
+    public Packet buildRequestPacket(int command, ByteString requestBody) {
+        return new common.WPBPacket(command,requestBody);
     }
 
     @Override
@@ -45,13 +44,6 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
     }
 
     public static void main(String[] args) {
-        if (true) {
-            String str = "{\"key\" : \"value\"}";
-            String str2 = new String("{\"key\" : \"value\"}");
-
-            System.out.println(str.hashCode() + "  " + str2.hashCode());
-            return;
-        }
         WPBClientForMockServer client = new WPBClientForMockServer(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(9103)
@@ -80,8 +72,8 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
 
         client.subscribe(client, WPBCmd.NOTIFY_PRICE.getValue(), new ResponseHandler() {
             @Override
-            public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet responsePacket) {
-                System.out.println("cmd: " + command + " ,params: " + params + " attach: " + attach + " responsePacket: " + responsePacket);
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
+                System.out.println("cmd: " + command + " ,requestBody: " + requestBody + " responsePacket: " + responsePacket);
             }
 
             @Override
@@ -91,10 +83,10 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
         });
 
         String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
-        client.request(client, WPBCmd.CREATE_ORDER.getValue(), json, null, new ResponseHandler() {
+        client.request(client, WPBCmd.CREATE_ORDER.getValue(), ByteString.encodeUtf8(json), new ResponseHandler() {
             @Override
-            public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet responsePacket) {
-                System.out.println("cmd: " + command + " ,params: " + params + " attach: " + attach + " responsePacket: " + responsePacket);
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
+                System.out.println("cmd: " + command + " ,requestBody: " + requestBody + " attach: " + " responsePacket: " + responsePacket);
             }
 
             @Override
@@ -104,10 +96,10 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
         });
 
         json = "{\"pageSize\" : \"10000\"}";
-        client.request(client, WPBCmd.QUERY_ORDER_LIST.getValue(), json, null, new ResponseHandler() {
+        client.request(client, WPBCmd.QUERY_ORDER_LIST.getValue(), ByteString.encodeUtf8(json), new ResponseHandler() {
             @Override
-            public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet responsePacket) {
-                System.out.println("cmd: " + command + " ,params: " + params + " attach: " + attach + " responsePacket: " + responsePacket);
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
+                System.out.println("cmd: " + command + " ,requestBody: " + requestBody + " responsePacket: " + responsePacket);
             }
 
             @Override

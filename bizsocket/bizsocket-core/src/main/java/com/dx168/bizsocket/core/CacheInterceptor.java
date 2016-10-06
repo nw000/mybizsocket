@@ -26,12 +26,12 @@ public class CacheInterceptor implements Interceptor {
 
             if (!cacheEntry.isExpired()) {
                 logger.debug("Use cache packet " + cachedPacket);
-                context.sendSuccessMessage(context.getRequestCommand(),context.getRequestBody(),context.getAttachInfo(),cacheEntry.getEntry());
+                context.sendSuccessMessage(context.getRequestCommand(),null,cacheEntry.getEntry());
                 return true;
             }
             else if (cacheEntry.getType() == CacheEntry.TYPE_EXPIRED_USE_AND_REFRESH) {
                 logger.debug("Use cache packet and refresh " + cachedPacket);
-                context.sendSuccessMessage(context.getRequestCommand(),context.getRequestBody(),context.getAttachInfo(),cacheEntry.getEntry());
+                context.sendSuccessMessage(context.getRequestCommand(),null,cacheEntry.getEntry());
             }
         }
         return false;

@@ -28,8 +28,8 @@ public class WPBPacket extends Packet {
     }
 
 
-    public WPBPacket(int cmd,String content) {
-        this.content = content;
+    public WPBPacket(int cmd,ByteString content) {
+        this.content = content.utf8();
         this.cmd = cmd;
         this.seq = nextSeq();
     }

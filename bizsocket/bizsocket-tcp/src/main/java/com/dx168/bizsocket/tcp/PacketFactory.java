@@ -2,6 +2,7 @@ package com.dx168.bizsocket.tcp;
 
 import java.io.IOException;
 import okio.BufferedSource;
+import okio.ByteString;
 
 /**
  * Created by tong on 16/10/3.
@@ -10,10 +11,10 @@ public interface PacketFactory {
     /**
      * create request packet with command and body
      * @param command
-     * @param body
+     * @param requestBody
      * @return
      */
-    Packet buildRequestPacket(int command, String body);
+    Packet buildRequestPacket(int command, ByteString requestBody);
 
     /**
      * create packet from the stream of server

@@ -1,6 +1,6 @@
 package com.dx168.bizsocket.core;
 
-import java.util.Map;
+import okio.ByteString;
 
 /**
  * Created by tong on 16/10/4.
@@ -10,11 +10,10 @@ public interface BizSocket {
      * execute new request
      * @param tag
      * @param command
-     * @param params
-     * @param attach
+     * @param requestBody
      * @param responseHandler
      */
-    void request(Object tag, int command, String params,Map<String,String> attach, ResponseHandler responseHandler);
+    void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler);
 
     /**
      * cancel a request

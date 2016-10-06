@@ -1,5 +1,7 @@
 package com.dx168.bizsocket.core;
 
+import com.dx168.bizsocket.common.Logger;
+import com.dx168.bizsocket.common.LoggerFactory;
 import com.dx168.bizsocket.tcp.Packet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +11,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by tong on 16/10/4.
  */
-public class DefaultMultiNotifyRouter implements MultiNotifyRouter {
+public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
+    private final Logger logger = LoggerFactory.getLogger(DefaultOne2ManyNotifyRouter.class.getSimpleName());
+
     private final Collection<NotifyContext> notifyContexts = new CopyOnWriteArrayList<NotifyContext>();
 
     @Override
@@ -37,12 +41,16 @@ public class DefaultMultiNotifyRouter implements MultiNotifyRouter {
 
     @Override
     public void route(int command, Packet packet) {
+        if (packet == null || packet.getCommand() != command) {
+            logger.error("can not route command: " + command + " packet: " + packet);
+            return;
+        }
         List<NotifyContext> preDelList = null;
         for (NotifyContext notifyContext : notifyContexts) {
             if (notifyContext.cmd == command) {
-                notifyContext.responseHandler.sendSuccessMessage(command, null, null, packet);
+                notifyContext.responseHandler.sendSuccessMessage(command, null, packet);
 
-                if ((notifyContext.flags & MultiNotifyRouter.FLAG_ONCE_CALL) != 0) {
+                if ((notifyContext.flags & One2ManyNotifyRouter.FLAG_ONCE_CALL) != 0) {
                     if (preDelList == null) {
                         preDelList = new ArrayList<NotifyContext>();
                     }

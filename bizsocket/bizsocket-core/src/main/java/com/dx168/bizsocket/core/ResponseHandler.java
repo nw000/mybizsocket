@@ -1,7 +1,7 @@
 package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.tcp.Packet;
-import java.util.Map;
+import okio.ByteString;
 
 /**
  * Created by tong on 16/2/17.
@@ -13,7 +13,7 @@ public interface ResponseHandler {
      * @param command   command code
      *
      */
-    void sendSuccessMessage(int command, String params,Map<String,String> attach, Packet responsePacket);
+    void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket);
 
     /**
      * Returns if request was completed with error code or failure of implementation

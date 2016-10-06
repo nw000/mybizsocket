@@ -261,12 +261,12 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         });
 
         for (RequestContext context : relativeContexts) {
-            context.sendSuccessMessage(command,null,context.getAttachInfo(),responsePacket);
+            context.sendSuccessMessage(command,null,responsePacket);
         }
         removeRequestContexts(relativeContexts);
 
         if (globalNotifyHandler != null) {
-            globalNotifyHandler.sendSuccessMessage(command,null,null,responsePacket);
+            globalNotifyHandler.sendSuccessMessage(command,null,responsePacket);
         }
     }
 

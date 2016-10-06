@@ -1,6 +1,7 @@
 package com.dx168.bizsocket.core;
 
 import com.dx168.bizsocket.tcp.Packet;
+import okio.ByteString;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,12 +62,10 @@ public class RequestContext implements ResponseHandler {
      */
     private ResponseHandler responseHandler;
 
-    private Map<String, String> attachInfo;
-
     private OnRequestTimeoutListener onRequestTimeoutListener;
 
     private Timer timer;
-    private String requestBody;
+    private ByteString requestBody;
     private int readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
     private Packet lastSendPacket;
 
@@ -123,14 +122,14 @@ public class RequestContext implements ResponseHandler {
     }
 
     @Override
-    public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet packet) {
+    public void sendSuccessMessage(int command, ByteString requestBody, Packet packet) {
         if (responseHandler != null) {
             if (lastSendPacket != null
                     && lastSendPacket.getContent() != null
                     && lastSendPacket.getContent().equals(packet.getContent())) {
                 return;
             }
-            responseHandler.sendSuccessMessage(command, params, attach, packet);
+            responseHandler.sendSuccessMessage(command, this.requestBody, packet);
         }
 
         lastSendPacket = packet;
@@ -141,14 +140,6 @@ public class RequestContext implements ResponseHandler {
         if (responseHandler != null) {
             responseHandler.sendFailureMessage(command, error);
         }
-    }
-
-    public void setAttachInfo(Map<String, String> attachInfo) {
-        this.attachInfo = attachInfo;
-    }
-
-    public Map<String, String> getAttachInfo() {
-        return attachInfo;
     }
 
     public void startTimeoutTimer() {
@@ -164,11 +155,11 @@ public class RequestContext implements ResponseHandler {
         },readTimeout * 1000);
     }
 
-    public void setRequestBody(String requestBody) {
+    public void setRequestBody(ByteString requestBody) {
         this.requestBody = requestBody;
     }
 
-    public String getRequestBody() {
+    public ByteString getRequestBody() {
         return requestBody;
     }
 

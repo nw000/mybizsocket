@@ -4,6 +4,7 @@ import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
 import common.WPBPacket;
 import okio.BufferedSource;
+import okio.ByteString;
 import java.io.IOException;
 
 /**
@@ -11,8 +12,8 @@ import java.io.IOException;
  */
 public class WPBPacketFactory implements PacketFactory {
     @Override
-    public Packet buildRequestPacket(int command, String body) {
-        return new common.WPBPacket(command,body);
+    public Packet buildRequestPacket(int command, ByteString requestBody) {
+        return new common.WPBPacket(command,requestBody);
     }
 
     @Override

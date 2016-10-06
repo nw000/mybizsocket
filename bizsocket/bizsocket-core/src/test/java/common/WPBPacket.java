@@ -26,8 +26,8 @@ public class WPBPacket extends Packet {
     }
 
 
-    public WPBPacket(int cmd,String content) {
-        this.content = content;
+    public WPBPacket(int cmd,ByteString requestBody) {
+        this.content = requestBody.utf8();
         this.cmd = cmd;
         this.seq = nextSeq();
     }

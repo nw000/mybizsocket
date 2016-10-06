@@ -1,0 +1,20 @@
+setUp
+4testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_NOT_USE
+setUp
+testPersistenceCacheEntry
+setUp
+*testCounterCacheEntryTYPE_EXPIRED_NOT_USE
+setUp
+9testRelativeMillisCacheEntryTYPE_EXPIRED_USE_AND_REFRESH
+setUp
+9testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH
+setUp
+1testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE
+setUp
+2testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH
+	setUp
+	<testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH
+
+setUp
+
+1testRelativeMillisCacheEntryTYPE_EXPIRED_NOT_USE

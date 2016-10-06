@@ -4,6 +4,8 @@ import com.dx168.bizsocket.tcp.Connection;
 import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
 import com.dx168.bizsocket.tcp.SocketConnection;
+import okio.ByteString;
+
 import java.util.Map;
 
 /**
@@ -13,7 +15,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     protected final Configuration configuration;
     protected final SocketConnection socketConnection;
     protected final RequestQueue requestQueue;
-    protected final MultiNotifyRouter multiNotifyRouter;
+    protected final One2ManyNotifyRouter one2ManyNotifyRouter;
     protected final CacheManager cacheManager;
 
     protected abstract PacketFactory createPacketFactory();
@@ -21,12 +23,12 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     public AbstractBizSocket(Configuration configuration) {
         this.configuration = configuration;
         socketConnection = createSocketConnection(createPacketFactory());
-        multiNotifyRouter = createMultiNotifyRouter();
+        one2ManyNotifyRouter = createMultiNotifyRouter();
         requestQueue = createRequestQueue(this);
         requestQueue.setGlobalNotifyHandler(new ResponseHandler() {
             @Override
-            public void sendSuccessMessage(int command, String params, Map<String, String> attach, Packet packet) {
-                multiNotifyRouter.route(command, packet);
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet packet) {
+                one2ManyNotifyRouter.route(command, packet);
             }
 
             @Override
@@ -55,8 +57,8 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     }
 
     @Override
-    public void request(Object tag, int command, String body, Map<String, String> attach, ResponseHandler responseHandler) {
-        RequestContext requestContext = buildRequestContext(tag,command,body,attach,responseHandler);
+    public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+        RequestContext requestContext = buildRequestContext(tag,command, requestBody,responseHandler);
         requestQueue.addRequestContext(requestContext);
         requestContext.startTimeoutTimer();
     }
@@ -73,12 +75,12 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
     @Override
     public void subscribe(Object tag, int cmd, ResponseHandler responseHandler) {
-        multiNotifyRouter.subscribe(tag,cmd,MultiNotifyRouter.FLAG_DEFAULT,responseHandler);
+        one2ManyNotifyRouter.subscribe(tag,cmd, One2ManyNotifyRouter.FLAG_DEFAULT,responseHandler);
     }
 
     @Override
     public void unsubscribe(Object tagOrResponseHandler) {
-        multiNotifyRouter.unsubscribe(tagOrResponseHandler);
+        one2ManyNotifyRouter.unsubscribe(tagOrResponseHandler);
     }
 
     public SocketConnection createSocketConnection(final PacketFactory factory) {
@@ -90,8 +92,8 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         };
     }
 
-    public MultiNotifyRouter createMultiNotifyRouter() {
-        return new DefaultMultiNotifyRouter();
+    public One2ManyNotifyRouter createMultiNotifyRouter() {
+        return new DefaultOne2ManyNotifyRouter();
     }
 
     public RequestQueue createRequestQueue(AbstractBizSocket bizSocket) {
@@ -130,15 +132,14 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         return getRequestQueue().getInterceptorChain();
     }
 
-    protected RequestContext buildRequestContext(Object tag, int command, String body, Map<String, String> attach, ResponseHandler responseHandler) {
-        Packet packet = getPacketFactory().buildRequestPacket(command,body);
+    protected RequestContext buildRequestContext(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+        Packet packet = getPacketFactory().buildRequestPacket(command,requestBody);
         RequestContext requestContext = new RequestContext();
         requestContext.addFlag(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
         requestContext.setRequestCommand(command);
-        requestContext.setRequestBody(body);
+        requestContext.setRequestBody(requestBody);
         requestContext.setTag(tag);
         requestContext.setResponseHandler(responseHandler);
-        requestContext.setAttachInfo(attach);
         requestContext.setRequestPacket(packet);
         requestContext.setReadTimeout(configuration.getReadTimeout());
         return requestContext;

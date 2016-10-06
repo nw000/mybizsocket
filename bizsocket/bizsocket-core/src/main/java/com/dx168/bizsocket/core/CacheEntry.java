@@ -12,11 +12,6 @@ public abstract class CacheEntry {
      */
     public static final int TYPE_EXPIRED_NOT_USE = 0;
 
-//    /**
-//     * 过期使用一次并且删除
-//     */
-//    public static final int TYPE_EXPIRED_USE_AND_REMOVE = 1 << 0;
-
     /**
      * 过期使用并且刷新缓存
      */
@@ -26,15 +21,21 @@ public abstract class CacheEntry {
     private CacheStrategy strategy;
     private Packet packet;
     private int type = TYPE_EXPIRED_NOT_USE;
+    private PacketValidator validator;
 
-    CacheEntry(CacheStrategy strategy,int command, int type) {
+    CacheEntry(CacheStrategy strategy,int command, int type,PacketValidator validator) {
+        if (type != TYPE_EXPIRED_NOT_USE
+                && type != TYPE_EXPIRED_USE_AND_REFRESH) {
+            throw new IllegalArgumentException("type == TYPE_EXPIRED_NOT_USE(" + TYPE_EXPIRED_NOT_USE + ") || type == TYPE_EXPIRED_USE_AND_REFRESH(" + TYPE_EXPIRED_USE_AND_REFRESH + ") ,param type: " + type);
+        }
+
         this.strategy = strategy;
         this.command = command;
         this.type = type;
+        this.validator = validator;
 
-        if (type != TYPE_EXPIRED_NOT_USE
-                && type != TYPE_EXPIRED_USE_AND_REFRESH) {
-
+        if (this.validator == null) {
+            throw new IllegalArgumentException("validator can not be null");
         }
     }
 
@@ -73,31 +74,31 @@ public abstract class CacheEntry {
         this.packet = packet;
     }
 
-    public static CacheEntry createPersistence(int command) {
-        return new PersistenceCacheEntry(command);
+    public static CacheEntry createPersistence(int command,PacketValidator validator) {
+        return new PersistenceCacheEntry(command,validator);
     }
 
-    public static CacheEntry createRelativeMillis(int command, int type,TimeUnit unit,long duration) {
-        return new RelativeMillisCacheEntry(command,type,unit,duration);
+    public static CacheEntry createRelativeMillis(int command, int type,TimeUnit unit,long duration,PacketValidator validator) {
+        return new RelativeMillisCacheEntry(command,type,unit,duration,validator);
     }
 
-    public static CacheEntry createCounter(int command, int type,int expiresCount) {
-        return new CounterCacheEntry(command,type,expiresCount);
+    public static CacheEntry createCounter(int command, int type,int expiresCount,PacketValidator validator) {
+        return new CounterCacheEntry(command,type,expiresCount,validator);
     }
 
-    public static CacheEntry createUseUtilSendCmd(int command, int type,int ...conflictCommands) {
-        return new UseUtilSendCmdCacheEntry(command, type, conflictCommands);
+    public static CacheEntry createUseUtilSendCmd(int command, int type,int[] conflictCommands,PacketValidator validator) {
+        return new UseUtilSendCmdCacheEntry(command, type, conflictCommands,validator);
     }
 
-    public static CacheEntry createUseUtilReceiveCmd(int command, int type,int ...conflictCommands) {
-        return new UseUtilReceiveCmdCacheEntry(command, type, conflictCommands);
+    public static CacheEntry createUseUtilReceiveCmd(int command, int type,int[] conflictCommands,PacketValidator validator) {
+        return new UseUtilReceiveCmdCacheEntry(command, type, conflictCommands,validator);
     }
 }
 
 //永不过期
 class PersistenceCacheEntry extends CacheEntry {
-    public PersistenceCacheEntry(int command) {
-        super(CacheStrategy.persistence, command, TYPE_EXPIRED_NOT_USE);
+    public PersistenceCacheEntry(int command,PacketValidator validator) {
+        super(CacheStrategy.persistence, command, TYPE_EXPIRED_NOT_USE,validator);
     }
 
     @Override
@@ -116,8 +117,8 @@ class RelativeMillisCacheEntry extends CacheEntry {
     private long dMillis;
     private long expiredMillis;
 
-    public RelativeMillisCacheEntry(int command, int type,TimeUnit unit,long duration) {
-        super(CacheStrategy.relative_millis, command, type);
+    public RelativeMillisCacheEntry(int command, int type,TimeUnit unit,long duration,PacketValidator validator) {
+        super(CacheStrategy.relative_millis, command, type,validator);
         dMillis = unit.toMillis(duration);
         expiredMillis = System.currentTimeMillis() + dMillis;
     }
@@ -138,8 +139,8 @@ class CounterCacheEntry extends CacheEntry {
     private int expiresCount;
     private int count;
 
-    public CounterCacheEntry(int command, int type,int expiresCount) {
-        super(CacheStrategy.counter, command, type);
+    public CounterCacheEntry(int command, int type,int expiresCount,PacketValidator validator) {
+        super(CacheStrategy.counter, command, type,validator);
         if (expiresCount <= 0) {
             throw new IllegalArgumentException("expiresCount >= 1,but: " + expiresCount);
         }
@@ -172,8 +173,8 @@ class UseUtilSendCmdCacheEntry extends CacheEntry {
     private boolean expired = false;
     private int[] conflictCommands;
 
-    public UseUtilSendCmdCacheEntry(int command, int type, int... conflictCommands) {
-        super(CacheStrategy.use_util_conflict, command, type);
+    public UseUtilSendCmdCacheEntry(int command, int type, int[] conflictCommands,PacketValidator validator) {
+        super(CacheStrategy.use_util_conflict, command, type,validator);
         this.conflictCommands = conflictCommands;
 
         if (conflictCommands == null || conflictCommands.length == 0) {
@@ -209,8 +210,8 @@ class UseUtilReceiveCmdCacheEntry extends CacheEntry {
     private boolean expired = false;
     private int[] conflictCommands;
 
-    public UseUtilReceiveCmdCacheEntry(int command, int type, int... conflictCommands) {
-        super(CacheStrategy.use_util_conflict, command, type);
+    public UseUtilReceiveCmdCacheEntry(int command, int type, int[] conflictCommands,PacketValidator validator) {
+        super(CacheStrategy.use_util_conflict, command, type,validator);
         this.conflictCommands = conflictCommands;
 
         if (conflictCommands == null || conflictCommands.length == 0) {

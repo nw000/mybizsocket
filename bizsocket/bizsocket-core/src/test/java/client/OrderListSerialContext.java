@@ -8,6 +8,7 @@ import com.dx168.bizsocket.tcp.Packet;
 import com.dx168.bizsocket.tcp.PacketFactory;
 import common.*;
 import common.WPBPacket;
+import okio.ByteString;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,7 +125,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
         }
 
         try {
-            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(),params.toString());
+            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(), ByteString.encodeUtf8(params.toString()));
         } catch (Throwable e) {
 
         }
