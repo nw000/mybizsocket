@@ -1,7 +1,7 @@
 package client;
 
-import com.dx168.bizsocket.tcp.Packet;
-import com.dx168.bizsocket.tcp.PacketFactory;
+import bizsocket.tcp.Packet;
+import bizsocket.tcp.PacketFactory;
 import common.WPBPacket;
 import okio.BufferedSource;
 import okio.ByteString;

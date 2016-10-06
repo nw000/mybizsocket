@@ -1,9 +1,8 @@
 package client;
 
-import com.dx168.bizsocket.core.*;
-import com.dx168.bizsocket.core.SerialSignal;
-import com.dx168.bizsocket.tcp.Packet;
-import com.dx168.bizsocket.tcp.PacketFactory;
+import bizsocket.core.*;
+import bizsocket.tcp.Packet;
+import bizsocket.tcp.PacketFactory;
 import common.WPBCmd;
 import common.WPBPacket;
 import okio.BufferedSource;

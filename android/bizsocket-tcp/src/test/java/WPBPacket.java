@@ -1,4 +1,4 @@
-import com.dx168.bizsocket.tcp.Packet;
+import bizsocket.tcp.Packet;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;

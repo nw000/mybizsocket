@@ -1,11 +1,11 @@
 package client;
 
-import com.dx168.bizsocket.core.RequestContext;
-import com.dx168.bizsocket.core.RequestQueue;
-import com.dx168.bizsocket.core.AbstractSerialContext;
-import com.dx168.bizsocket.core.SerialSignal;
-import com.dx168.bizsocket.tcp.Packet;
-import com.dx168.bizsocket.tcp.PacketFactory;
+import bizsocket.core.RequestContext;
+import bizsocket.core.RequestQueue;
+import bizsocket.core.AbstractSerialContext;
+import bizsocket.core.SerialSignal;
+import bizsocket.tcp.Packet;
+import bizsocket.tcp.PacketFactory;
 import common.*;
 import common.WPBPacket;
 import okio.ByteString;

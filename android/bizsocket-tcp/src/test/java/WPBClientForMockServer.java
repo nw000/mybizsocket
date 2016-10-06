@@ -1,7 +1,7 @@
-import com.dx168.bizsocket.tcp.Packet;
-import com.dx168.bizsocket.tcp.PacketFactory;
-import com.dx168.bizsocket.tcp.PacketListener;
-import com.dx168.bizsocket.tcp.SocketConnection;
+import bizsocket.tcp.Packet;
+import bizsocket.tcp.PacketFactory;
+import bizsocket.tcp.PacketListener;
+import bizsocket.tcp.SocketConnection;
 import okio.BufferedSource;
 import okio.ByteString;
 import java.io.IOException;
