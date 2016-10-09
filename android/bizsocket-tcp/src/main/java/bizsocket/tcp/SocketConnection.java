@@ -76,6 +76,8 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
             connect();
         } catch (Exception e) {
             e.printStackTrace();
+
+            notifyConnectException(e);
             return false;
         }
 
@@ -175,7 +177,11 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
     }
 
     public void reconnect() throws Exception {
-        connect();
+        try {
+            connect();
+        } catch (Exception e) {
+            notifyConnectException(e);
+        }
     }
 
     public void bindReconnectionManager() {
@@ -263,15 +269,13 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
     }
 
     void notifyConnectionError(Exception exception) {
-        if (!isSocketClosed()){
-            stopHeartBeat();
-            packetReader.shutdown();
-            packetWriter.shutdown();
+        stopHeartBeat();
+        packetReader.shutdown();
+        packetWriter.shutdown();
 
-            // Notify connection listeners of the error.
-            for (ConnectionListener connectionListener : connectionListeners) {
-                connectionListener.connectionClosedOnError(exception);
-            }
+        // Notify connection listeners of the error.
+        for (ConnectionListener connectionListener : connectionListeners) {
+            connectionListener.connectionClosedOnError(exception);
         }
     }
 

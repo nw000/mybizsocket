@@ -1,11 +1,16 @@
 package bizsocket.tcp;
 
+import bizsocket.logger.Logger;
+import bizsocket.logger.LoggerFactory;
+
 /**
  * Handles the automatic reconnection process. Every time a connection is dropped without
  * the application explicitly closing it, the manager automatically tries to reconnect to
  * the server.
  */
 public class ReconnectionManager {
+    private Logger logger = LoggerFactory.getLogger(ReconnectionManager.class.getSimpleName());
+
     private int RANDOM_BASE = 5;
 
     private SocketConnection connection;
@@ -102,6 +107,7 @@ public class ReconnectionManager {
                             mPreReConnect.doPreReConnect(connection);
                         }
                         else {
+                            logger.debug("connection.connect()  reconnect");
                             connection.reconnect();
                         }
                     }
@@ -110,6 +116,8 @@ public class ReconnectionManager {
                         connection.notifyConnectionError(exception);
                     }
                 }
+
+                logger.debug("reconnManager shutdown");
             }
         }
     }
@@ -121,6 +129,8 @@ public class ReconnectionManager {
     private ConnectionListener connectionListener = new ConnectionListener() {
         @Override
         public void connected(SocketConnection connection) {
+            logger.debug("SocketConnection connected");
+
             done = true;
             needRecnect = false;
             if (null != reconnectionThread) {
@@ -130,6 +140,8 @@ public class ReconnectionManager {
 
         @Override
         public void connectionClosed() {
+            logger.debug("SocketConnection connectionClosed");
+
             done = true;
             needRecnect = false;
             if (null != reconnectionThread) {
@@ -139,12 +151,15 @@ public class ReconnectionManager {
 
         @Override
         public void connectionClosedOnError(Exception exception) {
+            logger.debug("SocketConnection connectionClosedOnError");
             onConnectionClosedOnError(exception);
         }
 
         @Override
         public void reconnectingIn(int time) {
+            logger.debug("SocketConnection reconnectingIn");
 
+            logger.debug("reconnectingIn: " + time);
         }
     };
 

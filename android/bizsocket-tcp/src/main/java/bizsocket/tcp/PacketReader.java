@@ -27,14 +27,6 @@ class PacketReader {
     protected void init() {
         this.reader = connection.getReader();
         done = false;
-
-        readerThread = new Thread() {
-            public void run() {
-                parsePackets(this);
-            }
-        };
-        readerThread.setName("Packet Reader");
-        readerThread.setDaemon(true);
     }
 
     /**
@@ -44,8 +36,21 @@ class PacketReader {
      *
      */
     public synchronized void startup() {
+        if (!this.done && readerThread != null) {
+            return;
+        }
         done = false;
+        if (readerThread != null && readerThread.isAlive()) {
+            return;
+        }
         logger.debug("reader thread startup");
+        readerThread = new Thread() {
+            public void run() {
+                parsePackets(this);
+            }
+        };
+        readerThread.setName("Packet Reader");
+        readerThread.setDaemon(true);
         readerThread.start();
     }
 
@@ -53,10 +58,16 @@ class PacketReader {
      * Shuts the packet reader down. This method simply sets the 'done' flag to true.
      */
     public void shutdown() {
+        if (this.done) {
+            return;
+        }
         done = true;
 
         logger.debug("reader thread shutdown");
-        readerThread.interrupt();
+        if (readerThread != null) {
+            readerThread.interrupt();
+            readerThread = null;
+        }
     }
 
     void setReader(BufferedSource reader) {
@@ -73,12 +84,12 @@ class PacketReader {
             Packet packet = null;
             try {
                 packet = connection.getPacketFactory().buildPacket(reader);
-                if (packet != null && !done) {
+                if (packet != null && !done && this.readerThread == thisThread) {
                     connection.handlerReceivedPacket(packet);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                if (!done) {
+                if (!done && this.readerThread == thisThread) {
                     connection.handleReadWriteError(e);
                 }
             }
