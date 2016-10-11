@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by tong on 16/3/7.
  */
 public class RequestQueue implements PacketListener,ConnectionListener {
-    private final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
+    protected final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
     private final List<RequestContext> requestContextList = new RequestContextQuoue();
     private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
     private final List<AbstractSerialContext> mSerialContexts = new CopyOnWriteArrayList();

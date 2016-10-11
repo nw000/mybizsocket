@@ -1,5 +1,6 @@
 package bizsocket.core;
 
+import java.util.Map;
 import okio.ByteString;
 
 /**
@@ -13,7 +14,7 @@ public interface BizSocket {
      * @param requestBody
      * @param responseHandler
      */
-    void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler);
+    void request(Object tag, int command, ByteString requestBody, Map<String,String> attach, ResponseHandler responseHandler);
 
     /**
      * cancel a request

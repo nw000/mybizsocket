@@ -15,6 +15,7 @@ public class Configuration {
     private int heartbeat;//心跳间隔
     private boolean logEnable;
     private String logTag = "SocketClient";
+    private Configuration actual;
 
     Configuration() {
     }
@@ -80,6 +81,21 @@ public class Configuration {
 
     public void setLogTag(String logTag) {
         this.logTag = logTag;
+    }
+
+    public void apply(Configuration configuration) {
+        if (configuration == null) {
+            return;
+        }
+        this.readTimeout = configuration.getReadTimeout();
+        this.host = configuration.getHost();
+        this.port = configuration.getPort();
+        this.heartbeat = configuration.getHeartbeat();
+        this.actual = configuration;
+    }
+
+    public Configuration getActual() {
+        return actual;
     }
 
     public static class Builder {

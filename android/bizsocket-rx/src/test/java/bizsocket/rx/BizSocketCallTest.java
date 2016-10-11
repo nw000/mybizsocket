@@ -110,7 +110,7 @@ public class BizSocketCallTest extends TestCase {
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -119,7 +119,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall1",String.class,String.class);
         BizSocketCall call = new BizSocketCall();
         try {
-            call.call(rxBizSocket,method,"username","password");
+            call.call(bizSocketRxSupport,method,"username","password");
             fail("必须加上Request注解");
         } catch (IllegalArgumentException e) {
 
@@ -147,7 +147,7 @@ public class BizSocketCallTest extends TestCase {
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -156,7 +156,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall2",String.class,String.class);
         BizSocketCall call = new BizSocketCall();
         try {
-            call.call(rxBizSocket,method,"username","password");
+            call.call(bizSocketRxSupport,method,"username","password");
             fail("必须加上Request注解");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -184,7 +184,7 @@ public class BizSocketCallTest extends TestCase {
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -193,7 +193,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall3",Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        call.call(rxBizSocket,method,new Object(),"username","password");
+        call.call(bizSocketRxSupport,method,new Object(),"username","password");
     }
 
     @Test
@@ -217,7 +217,7 @@ public class BizSocketCallTest extends TestCase {
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -227,7 +227,7 @@ public class BizSocketCallTest extends TestCase {
         BizSocketCall call = new BizSocketCall();
 
         try {
-            call.call(rxBizSocket,method,new Object(),new Object(),"username","password");
+            call.call(bizSocketRxSupport,method,new Object(),new Object(),"username","password");
             fail("Tag注解不能重复");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -257,14 +257,14 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
             }
         }
 
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -273,7 +273,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall5",Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        Observable<String> observable = (Observable<String>) call.call(rxBizSocket, method, new Object(), "myusername", "mypassword");
+        Observable<String> observable = (Observable<String>) call.call(bizSocketRxSupport, method, new Object(), "myusername", "mypassword");
         observable.subscribe(new Subscriber<String>() {
             @Override
             public void onCompleted() {
@@ -315,14 +315,14 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
             }
         }
 
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -331,7 +331,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall6",Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        Observable<JSONObject> observable = (Observable<JSONObject>) call.call(rxBizSocket, method, new Object(), "myusername", "mypassword");
+        Observable<JSONObject> observable = (Observable<JSONObject>) call.call(bizSocketRxSupport, method, new Object(), "myusername", "mypassword");
         observable.subscribe(new Subscriber<JSONObject>() {
             @Override
             public void onCompleted() {
@@ -373,14 +373,14 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
             }
         }
 
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -389,7 +389,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall7",Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        Observable<CodeMsg> observable = (Observable<CodeMsg>) call.call(rxBizSocket, method, new Object(), "myusername", "mypassword");
+        Observable<CodeMsg> observable = (Observable<CodeMsg>) call.call(bizSocketRxSupport, method, new Object(), "myusername", "mypassword");
         observable.subscribe(new Subscriber<CodeMsg>() {
             @Override
             public void onCompleted() {
@@ -431,14 +431,14 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
             }
         }
 
         TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(8080).build());
-        RxBizSocket rxBizSocket = new RxBizSocket.Builder()
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
                 .bizSocket(bizSocket).build();
@@ -447,7 +447,7 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall8",Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        Observable observable = call.call(rxBizSocket, method, new Object(), "myusername", "mypassword");
+        Observable observable = call.call(bizSocketRxSupport, method, new Object(), "myusername", "mypassword");
         observable.subscribe(new Subscriber() {
             @Override
             public void onCompleted() {

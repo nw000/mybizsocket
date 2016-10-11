@@ -8,6 +8,7 @@ import common.WPBPacket;
 import okio.BufferedSource;
 import okio.ByteString;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by tong on 16/10/3.
@@ -23,7 +24,7 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
     }
 
     @Override
-    public Packet buildRequestPacket(int command, ByteString requestBody) {
+    public Packet buildRequestPacket(int command, ByteString requestBody, Map<String, String> attach) {
         return new common.WPBPacket(command,requestBody);
     }
 

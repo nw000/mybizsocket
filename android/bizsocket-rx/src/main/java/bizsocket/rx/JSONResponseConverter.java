@@ -1,23 +1,22 @@
 package bizsocket.rx;
 
 import bizsocket.tcp.Packet;
+import okio.ByteString;
 import com.google.gson.Gson;
-import java.lang.reflect.Constructor;
+import org.json.JSONObject;
 import java.lang.reflect.Type;
 
 /**
  * Created by tong on 16/10/6.
  */
 public class JSONResponseConverter {
-    public Object convert(Type type,Packet packet) {
+    public Object convert(int command, ByteString requestBody, Type type, Packet packet) {
         if (type == String.class) {
             return packet.getContent();
         }
-        else if ("org.json.JSONObject".equals(type.getTypeName())) {
+        else if (type == JSONObject.class) {
             try {
-                Class clazz =  Class.forName("org.json.JSONObject");
-                Constructor constructor =  clazz.getConstructor(String.class);
-                return constructor.newInstance(packet.getContent());
+                return new JSONObject(packet.getContent());
             } catch (Exception e) {
                 e.printStackTrace();
             }

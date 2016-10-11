@@ -75,6 +75,7 @@ class PacketWriter {
         };
         writerThread.setName("Packet Writer");
         writerThread.setDaemon(true);
+        writerThread.start();
     }
 
     void setWriter(BufferedSink writer) {
@@ -139,10 +140,18 @@ class PacketWriter {
                     }
                 }
             }
+
+            try {
+                if (!done) {
+                    Thread.sleep(500);
+                }
+            } catch (InterruptedException e) {
+
+            }
         }
     }
 
-    public void clearQuoue() {
+    public void clearQueue() {
         if (queue != null) {
             queue.clear();
         }

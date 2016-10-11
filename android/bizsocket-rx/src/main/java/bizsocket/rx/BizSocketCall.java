@@ -1,38 +1,45 @@
 package bizsocket.rx;
 
+import bizsocket.core.Constants;
 import bizsocket.core.ResponseHandler;
 import bizsocket.tcp.Packet;
 import com.google.gson.internal.$Gson$Types;
 import okio.ByteString;
 import rx.Observable;
 import rx.Subscriber;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by tong on 16/10/6.
  */
 public class BizSocketCall {
-    public Observable<?> call(final RxBizSocket rxBizSocket, final Method method,Object... args) throws Exception {
+    public Observable<?> call(final BizSocketRxSupport bizSocketRxSupport, final Method method, Object... args) throws Exception {
         Request request = null;
         if ((request = method.getAnnotation(Request.class)) == null) {
             throw new IllegalArgumentException("Can not found annotation(" + Request.class.getPackage() + "." + Request.class.getSimpleName() + ")");
         }
         final int command = request.cmd();
         final Object tag = getTag(method,args);
-        if (tag == null) {
-            throw new IllegalArgumentException("request tag can not be null(@Tag tag)");
-        }
-        final ByteString requestBody = getRequestBody(rxBizSocket,method,args);
+//        if (tag == null) {
+//            throw new IllegalArgumentException("request tag can not be null(@Tag tag)");
+//        }
+        final ByteString requestBody = getRequestBody(bizSocketRxSupport,method,args);
+
+        final String desc = request.desc();
         return Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(final Subscriber<? super Object> subscriber) {
-                rxBizSocket.getBizSocket().request(tag, command, requestBody, new ResponseHandler() {
+                Map<String,String> attach = new HashMap<String, String>();
+                attach.put(Constants.KEY_DESCRIPTION, desc);
+                bizSocketRxSupport.getBizSocket().request(tag, command, requestBody,attach, new ResponseHandler() {
                     @Override
                     public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
-                        Object response = rxBizSocket.getResponseConverter().convert(getResponseType(method),responsePacket);
+                        Object response = bizSocketRxSupport.getResponseConverter().convert(command,requestBody,getResponseType(method),responsePacket);
                         subscriber.onNext(response);
                     }
 
@@ -45,6 +52,10 @@ public class BizSocketCall {
         });
     }
 
+    public Object getDefaultTag() {
+        return new Object();
+    }
+
     public Type getResponseType(Method method) {
         if (method.getReturnType() != Observable.class) {
             throw new IllegalStateException("return type must be rx.Observable");
@@ -54,34 +65,27 @@ public class BizSocketCall {
             type = $Gson$Types.canonicalize(((ParameterizedType)type).getActualTypeArguments()[0]);
         }
 
-        if ("rx.Observable".equals(type.getTypeName())) {
+        if ("rx.Observable".equals(type.toString())) {
             throw new IllegalStateException("the generic value of the return value is unspecified; support " + "rx.Observable<String> | rx.Observable<JSONObject> | rx.Observable<JavaBean>");
         }
         return type;
     }
 
     public Object getTag(Method method,Object... args) {
-        Parameter tagParameter = null;
-        int tagParameterPosition = -1;
+        Annotation[][] annotationArray = method.getParameterAnnotations();
         int index = 0;
-        for (Parameter parameter : method.getParameters()) {
-            if (parameter.getAnnotation(Tag.class) != null) {
-                if (tagParameter != null) {
-                    throw new IllegalArgumentException("tag conflict " + tagParameter.getName() + " " + parameter.getName() + " ,at " + method.toString());
+        for (Annotation[] annotations : annotationArray) {
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Tag) {
+                    return args[index];
                 }
-                tagParameter = parameter;
-                tagParameterPosition = index;
             }
-            index++;
+            index ++;
         }
-
-        if (tagParameterPosition != -1) {
-            return args[tagParameterPosition];
-        }
-        return null;
+        return getDefaultTag();
     }
 
-    public ByteString getRequestBody(RxBizSocket rxBizSocket, Method method, Object[] args) throws Exception {
-        return rxBizSocket.getRequestConverter().converter(method, args);
+    public ByteString getRequestBody(BizSocketRxSupport bizSocketRxSupport, Method method, Object[] args) throws Exception {
+        return bizSocketRxSupport.getRequestConverter().converter(method, args);
     }
 }

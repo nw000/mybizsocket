@@ -125,7 +125,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
         }
 
         try {
-            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(), ByteString.encodeUtf8(params.toString()));
+            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(), ByteString.encodeUtf8(params.toString()), attach);
         } catch (Throwable e) {
 
         }

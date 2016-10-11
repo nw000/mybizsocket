@@ -12,6 +12,8 @@ public abstract class Packet {
 
     private long longPacketId;
 
+    private String description;
+
     /**
      * Returns the packet as bytes.
      */
@@ -37,11 +39,17 @@ public abstract class Packet {
         return String.valueOf(Long.valueOf(longPacketId));
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     /**
      * 获取包的描述
      * @return
      */
-    public abstract String getDescription();
+    public String getDescription() {
+        return this.description;
+    }
 
 
     public void onSendSuccessful() {

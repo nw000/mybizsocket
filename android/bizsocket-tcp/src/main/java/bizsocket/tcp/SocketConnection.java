@@ -17,7 +17,7 @@ import okio.Okio;
 /**
  * Creates a socket connection to a tcp server.
  */
-public abstract class SocketConnection implements Connection, ReconnectionManager.PreReConnect {
+public abstract class SocketConnection implements Connection, ReconnectionManager.ReconnectHandler {
     public static final int DEFAULT_HEART_BEAT_INTERVAL = 30000;
 
     /**
@@ -63,10 +63,6 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
 
         onSocketConnected();
         callConnectionListenerConnected();
-
-        if (packetFactory.supportHeartBeat()) {
-            startHeartBeat();
-        }
     }
 
     public boolean connectAndStartWatch() {
@@ -86,7 +82,8 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
 
     @Override
     public void disconnect() {
-        if (socket != null && !isSocketClosed()) {
+        //if (socket != null && !isSocketClosed()) {
+        if (socket != null) {
             logger.debug("disconnect");
             try {
                 if (packetReader != null) {
@@ -176,7 +173,7 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         this.heartbeat = heartbeat;
     }
 
-    public void reconnect() throws Exception {
+    public void reconnect() {
         try {
             connect();
         } catch (Exception e) {
@@ -184,18 +181,27 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         }
     }
 
+    public void triggerReconnect() {
+        bindReconnectionManager();
+
+        notifyConnectException(new SocketException("触发重连"));
+    }
+
     public void bindReconnectionManager() {
-        if (reconnectionManager == null) {
-            reconnectionManager = new ReconnectionManager();
-            reconnectionManager.bind(this);
+        if (reconnectionManager != null) {
+            return;
         }
-        reconnectionManager.setPreReConnect(this);
+
+        reconnectionManager = new ReconnectionManager();
+        reconnectionManager.bind(this);
+        reconnectionManager.setReconnectHandler(this);
     }
 
     public void unbindReconnectionManager() {
         if (reconnectionManager != null) {
-            reconnectionManager.bind(this);
+            reconnectionManager.unbind();
         }
+        reconnectionManager = null;
     }
 
     protected Socket createSocket(String host, int port) throws Exception {
@@ -285,15 +291,6 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         }
     }
 
-    @Override
-    public void doPreReConnect(SocketConnection connection) {
-        try {
-            connection.reconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     protected void onSocketConnected() {
 
     }
@@ -314,9 +311,14 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         }
     }
 
-    public void clearWriteQuote() {
+    public void clearWriteQuete() {
         if (packetWriter != null) {
-            packetWriter.clearQuoue();
+            packetWriter.clearQueue();
         }
+    }
+
+    @Override
+    public void doReconnect(SocketConnection connection) {
+        reconnect();
     }
 }

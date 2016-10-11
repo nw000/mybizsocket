@@ -6,13 +6,14 @@ import common.WPBPacket;
 import okio.BufferedSource;
 import okio.ByteString;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by tong on 16/10/5.
  */
 public class WPBPacketFactory implements PacketFactory {
     @Override
-    public Packet buildRequestPacket(int command, ByteString requestBody) {
+    public Packet buildRequestPacket(int command, ByteString requestBody, Map<String, String> attach) {
         return new common.WPBPacket(command,requestBody);
     }
 

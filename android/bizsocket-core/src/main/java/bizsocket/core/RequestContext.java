@@ -2,6 +2,8 @@ package bizsocket.core;
 
 import bizsocket.tcp.Packet;
 import okio.ByteString;
+
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,27 +19,27 @@ public class RequestContext implements ResponseHandler {
     /**
      * 请求已发送
      */
-    public static final int FLAG_REQUEST_ALREADY_SEND = 1 << 2;
+    public static final int FLAG_REQUEST_ALREADY_SEND = 1 << 1;
 
     /**
      * 发送时是否检查当前连接状态
      */
-    public static final int FLAG_CHECK_CONNECT_STATUS = 1 << 3;
+    public static final int FLAG_CHECK_CONNECT_STATUS = 1 << 2;
 
     /**
      * 紧急的包需要优先插队执行
      */
-    public static final int FLAG_JUMP_QUOTE = 1 << 4;
+    public static final int FLAG_JUMP_QUOTE = 1 << 3;
 
     /**
      * 写出这个包之前清空队列
      */
-    public static final int FLAG_CLEAR_QUOTE = 1 << 5;
+    public static final int FLAG_CLEAR_QUOTE = 1 << 4;
 
     /**
      * 同一个请求不允许重复出现在队列中
      */
-    public static final int FLAG_NOT_SUPPORT_REPEAT = 1 << 6;
+    public static final int FLAG_NOT_SUPPORT_REPEAT = 1 << 5;
 
     /**
      * 状态机
@@ -67,6 +69,7 @@ public class RequestContext implements ResponseHandler {
     private ByteString requestBody;
     private long readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
     private Packet lastSendPacket;
+    private Map attach;
 
     public int getFlags() {
         return flags;
@@ -167,6 +170,14 @@ public class RequestContext implements ResponseHandler {
             timer.cancel();
             timer = null;
         }
+    }
+
+    public Map getAttach() {
+        return attach;
+    }
+
+    public void setAttach(Map attach) {
+        this.attach = attach;
     }
 
     public interface OnRequestTimeoutListener {

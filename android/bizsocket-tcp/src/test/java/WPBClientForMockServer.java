@@ -5,6 +5,7 @@ import bizsocket.tcp.SocketConnection;
 import okio.BufferedSource;
 import okio.ByteString;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -21,7 +22,7 @@ public class WPBClientForMockServer extends SocketConnection implements PacketFa
     }
 
     @Override
-    public Packet buildRequestPacket(int command, ByteString body) {
+    public Packet buildRequestPacket(int command, ByteString body, Map<String, String> attach) {
         return new WPBPacket(command,body);
     }
 
@@ -58,7 +59,7 @@ public class WPBClientForMockServer extends SocketConnection implements PacketFa
         while (true) {
             try {
                 String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
-                client.sendPacket(client.buildRequestPacket(WPBPacket.CMD_CREATE_ORDER,ByteString.encodeUtf8(json)));
+                client.sendPacket(client.buildRequestPacket(WPBPacket.CMD_CREATE_ORDER,ByteString.encodeUtf8(json), attach));
                 Thread.sleep(new Random().nextInt(4000) + 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();

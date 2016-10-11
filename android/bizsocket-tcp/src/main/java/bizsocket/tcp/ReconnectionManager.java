@@ -17,13 +17,21 @@ public class ReconnectionManager {
     private ReconnectionManager.ReconnectionThread reconnectionThread;
     private boolean done = false;
     private boolean needRecnect = false;
-    private PreReConnect mPreReConnect;
+    private ReconnectHandler reconnectHandler;
 
     public void bind(SocketConnection connection) {
         this.connection = connection;
         this.connection.removeConnectionListener(connectionListener);
         this.connection = connection;
         this.connection.addConnectionListener(connectionListener);
+    }
+
+    public void unbind() {
+        if (connection != null) {
+            this.connection.removeConnectionListener(connectionListener);
+        }
+
+        this.connection = null;
     }
 
     public boolean isNeedRecnect() {
@@ -48,12 +56,12 @@ public class ReconnectionManager {
         }
     }
 
-    public PreReConnect getPreReConnect() {
-        return mPreReConnect;
+    public ReconnectHandler getReconnectHandler() {
+        return reconnectHandler;
     }
 
-    public void setPreReConnect(PreReConnect mPreReConnect) {
-        this.mPreReConnect = mPreReConnect;
+    public void setReconnectHandler(ReconnectHandler reconnectHandler) {
+        this.reconnectHandler = reconnectHandler;
     }
 
     public synchronized void reconnect() {
@@ -103,8 +111,8 @@ public class ReconnectionManager {
 
                 try {
                     if (isReconnectionAllowed() && !isInterrupted()) {
-                        if (mPreReConnect != null) {
-                            mPreReConnect.doPreReConnect(connection);
+                        if (reconnectHandler != null) {
+                            reconnectHandler.doReconnect(connection);
                         }
                         else {
                             logger.debug("connection.connect()  reconnect");
@@ -172,7 +180,7 @@ public class ReconnectionManager {
         reconnect();
     }
 
-    public interface PreReConnect {
-        void doPreReConnect(SocketConnection connection);
+    public interface ReconnectHandler {
+        void doReconnect(SocketConnection connection);
     }
 }

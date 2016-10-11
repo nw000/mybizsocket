@@ -8,12 +8,12 @@ import java.lang.reflect.Proxy;
 /**
  * Created by tong on 16/10/6.
  */
-public class RxBizSocket {
+public class BizSocketRxSupport {
     private final BizSocket bizSocket;
     private final JSONRequestConverter requestConverter;
     private final JSONResponseConverter responseConverter;
 
-    RxBizSocket(BizSocket bizSocket, JSONRequestConverter requestConverter,JSONResponseConverter responseConverter) {
+    BizSocketRxSupport(BizSocket bizSocket, JSONRequestConverter requestConverter, JSONResponseConverter responseConverter) {
         this.responseConverter = responseConverter;
         this.bizSocket = bizSocket;
         this.requestConverter = requestConverter;
@@ -52,7 +52,7 @@ public class RxBizSocket {
                             return method.invoke(this, args);
                         }
 
-                        return new BizSocketCall().call(RxBizSocket.this,method,args);
+                        return new BizSocketCall().call(BizSocketRxSupport.this,method,args);
                     }
                 });
     }
@@ -77,8 +77,8 @@ public class RxBizSocket {
             return this;
         }
 
-        public RxBizSocket build() {
-            return new RxBizSocket(bizSocket,requestConverter,responseConverter);
+        public BizSocketRxSupport build() {
+            return new BizSocketRxSupport(bizSocket,requestConverter,responseConverter);
         }
     }
 }

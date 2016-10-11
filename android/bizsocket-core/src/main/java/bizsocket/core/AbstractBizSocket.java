@@ -1,5 +1,6 @@
 package bizsocket.core;
 
+import java.util.Map;
 import bizsocket.tcp.Connection;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
@@ -10,13 +11,17 @@ import okio.ByteString;
  * Created by tong on 16/10/4.
  */
 public abstract class AbstractBizSocket implements Connection,BizSocket {
-    protected final Configuration configuration;
+    protected Configuration configuration;
     protected final SocketConnection socketConnection;
     protected final RequestQueue requestQueue;
     protected final One2ManyNotifyRouter one2ManyNotifyRouter;
     protected final CacheManager cacheManager;
 
     protected abstract PacketFactory createPacketFactory();
+
+    public AbstractBizSocket() {
+        this(null);
+    }
 
     public AbstractBizSocket(Configuration configuration) {
         this.configuration = configuration;
@@ -55,8 +60,8 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     }
 
     @Override
-    public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
-        RequestContext requestContext = buildRequestContext(tag,command, requestBody,responseHandler);
+    public void request(Object tag, int command, ByteString requestBody, Map attach, ResponseHandler responseHandler) {
+        RequestContext requestContext = buildRequestContext(tag,command, requestBody,attach,responseHandler);
         requestQueue.addRequestContext(requestContext);
         requestContext.startTimeoutTimer();
     }
@@ -86,6 +91,11 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
             @Override
             protected PacketFactory createPacketFactory() {
                 return factory;
+            }
+
+            @Override
+            public void doReconnect(SocketConnection connection) {
+                AbstractBizSocket.this.doReconnect();
             }
         };
     }
@@ -130,8 +140,23 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         return getRequestQueue().getInterceptorChain();
     }
 
-    protected RequestContext buildRequestContext(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
-        Packet packet = getPacketFactory().buildRequestPacket(command,requestBody);
+    public void doReconnect() {
+        getSocketConnection().reconnect();
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    protected RequestContext buildRequestContext(Object tag, int command, ByteString requestBody, Map attach, ResponseHandler responseHandler) {
+        Packet packet = getPacketFactory().buildRequestPacket(command,requestBody,attach);
+        if (attach != null) {
+            String desc = (String) attach.get(Constants.KEY_DESCRIPTION);
+            if (desc != null && desc.trim().length() > 0) {
+                packet.setDescription(desc);
+            }
+        }
+
         RequestContext requestContext = new RequestContext();
         requestContext.setFlags(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
         requestContext.setRequestCommand(command);

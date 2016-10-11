@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * Created by tong on 16/10/8.
  */
-public class RxBizSocketTest extends TestCase {
+public class BizSocketRxSupportTest extends TestCase {
     @Test
     public void testCreate1() throws Exception {
         WPBClientForMockServer client = new WPBClientForMockServer(new Configuration.Builder()
@@ -16,7 +16,7 @@ public class RxBizSocketTest extends TestCase {
                 .port(9103)
                 .build());
 
-        RxBizSocket rxBizSocke = new RxBizSocket.Builder()
+        BizSocketRxSupport rxBizSocke = new BizSocketRxSupport.Builder()
                 .bizSocket(client)
                 .requestConverter(new JSONRequestConverter())
                 .responseConverter(new JSONResponseConverter())
