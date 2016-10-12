@@ -48,7 +48,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         List<NotifyContext> preDelList = null;
         for (NotifyContext notifyContext : notifyContexts) {
             if (notifyContext.cmd == command) {
-                notifyContext.responseHandler.sendSuccessMessage(command, null, packet);
+                sendSuccessMessage(notifyContext,command,packet);
 
                 if ((notifyContext.flags & One2ManyNotifyRouter.FLAG_ONCE_CALL) != 0) {
                     if (preDelList == null) {
@@ -61,6 +61,14 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
 
         if (preDelList != null && !preDelList.isEmpty()) {
             notifyContexts.removeAll(preDelList);
+        }
+    }
+
+    public void sendSuccessMessage(NotifyContext notifyContext, int command, Packet packet) {
+        try {
+            notifyContext.responseHandler.sendSuccessMessage(command, null, packet);
+        } catch (Throwable e) {
+
         }
     }
 
