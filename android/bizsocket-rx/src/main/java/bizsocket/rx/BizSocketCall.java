@@ -53,7 +53,7 @@ public class BizSocketCall {
     }
 
     public Object getDefaultTag() {
-        return new Object();
+        return this;
     }
 
     public Type getResponseType(Method method) {

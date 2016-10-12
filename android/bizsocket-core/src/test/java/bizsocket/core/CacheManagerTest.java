@@ -35,11 +35,11 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(CacheEntry.createPersistence(command, validator));
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(22, ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(22, ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command, ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command, ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         for (int i = 0; i < 15; i++) {
@@ -58,11 +58,11 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
@@ -71,7 +71,7 @@ public class CacheManagerTest extends TestCase {
 
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNotNull(cacheManager.get(command));
     }
@@ -87,11 +87,11 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
@@ -104,7 +104,7 @@ public class CacheManagerTest extends TestCase {
         assertNotNull(res);
         assertEquals(res.isExpired(),true);
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNotNull(cacheManager.get(command));
         assertEquals(cacheManager.get(command).isExpired(), false);
@@ -121,11 +121,11 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         for (int i = 0; i < 9; i++) {
@@ -136,7 +136,7 @@ public class CacheManagerTest extends TestCase {
         }
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         for (int i = 0; i < 9; i++) {
@@ -159,11 +159,11 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(22,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
         assertNull(cacheManager.get(command));
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         for (int i = 0; i < 9; i++) {
@@ -180,7 +180,7 @@ public class CacheManagerTest extends TestCase {
         assertNotNull(cacheEntry1);
         assertEquals(cacheEntry1.isExpired(),true);
 
-        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         for (int i = 0; i < 9; i++) {
@@ -205,13 +205,13 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
         assertEquals(cacheManager.get(command).isExpired(), false);
 
-        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onSendPacket(packet);
 
         assertNull(cacheManager.get(command));
@@ -228,13 +228,13 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
         assertEquals(cacheManager.get(command).isExpired(), false);
 
-        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onSendPacket(packet);
 
         assertNotNull(cacheManager.get(command));
@@ -252,13 +252,13 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
         assertEquals(cacheManager.get(command).isExpired(), false);
 
-        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNull(cacheManager.get(command));
@@ -275,13 +275,13 @@ public class CacheManagerTest extends TestCase {
         cacheManager.put(cacheEntry);
         assertNull(cacheManager.get(command));
 
-        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        Packet packet = new WPBPacketFactory().buildRequestPacket(command,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));
         assertEquals(cacheManager.get(command).isExpired(), false);
 
-        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), attach);
+        packet = new WPBPacketFactory().buildRequestPacket(2,ByteString.encodeUtf8(new JSONObject().toString()), null);
         cacheManager.onReceivePacket(packet);
 
         assertNotNull(cacheManager.get(command));

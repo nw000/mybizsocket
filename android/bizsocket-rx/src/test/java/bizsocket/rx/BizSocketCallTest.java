@@ -13,6 +13,7 @@ import org.junit.Test;
 import rx.Observable;
 import rx.Subscriber;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Created by tong on 16/10/8.
@@ -75,7 +76,7 @@ public class BizSocketCallTest extends TestCase {
 
         Object tag = new Object();
         Object returnTag = call.getTag(method, tag, "", "");
-        assertNull(returnTag);
+        assertNotNull(returnTag);
     }
 
     @Test
@@ -102,7 +103,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
 
             }
         }
@@ -139,7 +140,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
 
             }
         }
@@ -155,12 +156,8 @@ public class BizSocketCallTest extends TestCase {
 
         Method method = serviceClazz.getMethod("testCall2",String.class,String.class);
         BizSocketCall call = new BizSocketCall();
-        try {
-            call.call(bizSocketRxSupport,method,"username","password");
-            fail("必须加上Request注解");
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        //不写tag tag设置成call
+        call.call(bizSocketRxSupport,method,"username","password");
     }
 
     @Test
@@ -176,7 +173,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
 
             }
         }
@@ -209,7 +206,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
 
             }
         }
@@ -226,12 +223,8 @@ public class BizSocketCallTest extends TestCase {
         Method method = serviceClazz.getMethod("testCall4",Object.class,Object.class,String.class,String.class);
         BizSocketCall call = new BizSocketCall();
 
-        try {
-            call.call(bizSocketRxSupport,method,new Object(),new Object(),"username","password");
-            fail("Tag注解不能重复");
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        //tag允许重复，以前面的为准
+        call.call(bizSocketRxSupport,method,new Object(),new Object(),"username","password");
     }
 
     @Test
@@ -247,7 +240,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("code",200);
@@ -257,7 +250,7 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, null));
             }
         }
 
@@ -305,7 +298,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("code",200);
@@ -315,7 +308,7 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, null));
             }
         }
 
@@ -363,7 +356,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("code",200);
@@ -373,7 +366,7 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, null));
             }
         }
 
@@ -421,7 +414,7 @@ public class BizSocketCallTest extends TestCase {
             }
 
             @Override
-            public void request(Object tag, int command, ByteString requestBody, ResponseHandler responseHandler) {
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("code",200);
@@ -431,7 +424,7 @@ public class BizSocketCallTest extends TestCase {
                 }
                 ByteString responseStr = ByteString.encodeUtf8(obj.toString());
 
-                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, attach));
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, null));
             }
         }
 
