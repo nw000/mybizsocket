@@ -52,6 +52,9 @@ public class BizSocketCallTest extends TestCase {
 
         @Request(cmd = 22)
         Observable testCall8(@Tag Object tag,String username,String password);
+
+        @Request(cmd = 22)
+        Observable testCall9(@Cmd int cmd,@Query("username") String username);
     }
 
     public static class CodeMsg {
@@ -454,7 +457,65 @@ public class BizSocketCallTest extends TestCase {
 
             @Override
             public void onNext(Object s) {
-                fail("返回值的泛型必须配置");
+                System.out.print(s);
+            }
+        });
+    }
+
+    @Test
+    public void testCall9() throws Exception {
+        class TestBizSocket extends AbstractBizSocket {
+            public TestBizSocket(Configuration configuration) {
+                super(configuration);
+            }
+
+            @Override
+            protected PacketFactory createPacketFactory() {
+                return new WPBPacketFactory();
+            }
+
+            @Override
+            public void request(Object tag, int command, ByteString requestBody,Map attach, ResponseHandler responseHandler) {
+                JSONObject obj = new JSONObject();
+                try {
+                    obj.put("code",200);
+                    obj.put("msg","ok");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ByteString responseStr = ByteString.encodeUtf8(obj.toString());
+
+                responseHandler.sendSuccessMessage(22, ByteString.encodeUtf8("{}"), getPacketFactory().buildRequestPacket(22,responseStr, null));
+            }
+        }
+
+        TestBizSocket bizSocket = new TestBizSocket(new Configuration.Builder()
+                .host("127.0.0.1")
+                .port(8080).build());
+        BizSocketRxSupport bizSocketRxSupport = new BizSocketRxSupport.Builder()
+                .requestConverter(new JSONRequestConverter())
+                .responseConverter(new JSONResponseConverter())
+                .bizSocket(bizSocket).build();
+
+
+        Method method = serviceClazz.getMethod("testCall9",int.class,String.class);
+        BizSocketCall call = new BizSocketCall();
+
+        Observable observable = call.call(bizSocketRxSupport, method, 88,"ss");
+        observable.subscribe(new Subscriber() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(Object s) {
+
             }
         });
     }

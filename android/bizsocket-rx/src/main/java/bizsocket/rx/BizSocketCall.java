@@ -23,7 +23,8 @@ public class BizSocketCall {
         if ((request = method.getAnnotation(Request.class)) == null) {
             throw new IllegalArgumentException("Can not found annotation(" + Request.class.getPackage() + "." + Request.class.getSimpleName() + ")");
         }
-        final int command = request.cmd();
+        final int command = getCommand(request,method,args);
+        System.out.print("cmd: " + command);
         final Object tag = getTag(method,args);
 //        if (tag == null) {
 //            throw new IllegalArgumentException("request tag can not be null(@Tag tag)");
@@ -50,6 +51,21 @@ public class BizSocketCall {
                 });
             }
         });
+    }
+
+    public int getCommand(Request request,Method method, Object[] args) {
+        int cmd = request.cmd();
+        Annotation[][] annotationArray = method.getParameterAnnotations();
+        int index = 0;
+        for (Annotation[] annotations : annotationArray) {
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Cmd) {
+                    return (Integer)args[index];
+                }
+            }
+            index ++;
+        }
+        return cmd;
     }
 
     public Object getDefaultTag() {

@@ -16,7 +16,7 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'bizsocket'
+rootProject.name = 'com.dx168.bizsocket'
 
 include 'test'
 include 'bizsocket-logger'
