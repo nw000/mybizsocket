@@ -141,13 +141,13 @@ class PacketWriter {
                 }
             }
 
-            try {
-                if (!done) {
-                    Thread.sleep(500);
-                }
-            } catch (InterruptedException e) {
-
-            }
+//            try {
+//                if (!done) {
+//                    Thread.sleep(500);
+//                }
+//            } catch (InterruptedException e) {
+//
+//            }
         }
     }
 
