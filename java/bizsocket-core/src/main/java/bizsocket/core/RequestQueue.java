@@ -317,14 +317,15 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     public boolean prepareDispatchPacket(Packet packet) {
         AbstractSerialContext serialContext = getSerialContext(packet);
         if (serialContext != null) {
-            removeRequestContext(serialContext.getRequestContext());
+            //removeRequestContext(serialContext.getRequestContext());
             logger.debug("about serial packet: " + packet);
             Packet processPacket = serialContext.processPacket(this,packet);
             if (processPacket == null) {
                 return false;
             }
 
-            removeRequestContext(serialContext.getRequestContext());
+
+            addRequestContext(serialContext.getRequestContext());
             boolean result = mSerialContexts.remove(serialContext);
             if (result) {
                 logger.debug("serialContext remove: " + serialContext);
