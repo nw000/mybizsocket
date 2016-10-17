@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by tong on 16/3/8.
  */
 public abstract class AbstractFragmentRequestQueue<T extends Packet> extends RequestQueue {
-    private Map<Integer,FragmentInfo<T>> fragmentInfoMap = new ConcurrentHashMap<Integer,FragmentInfo<T>>();
+    private final Map<Integer,FragmentInfo<T>> fragmentInfoMap = new ConcurrentHashMap<Integer,FragmentInfo<T>>();
 
     public AbstractFragmentRequestQueue(AbstractBizSocket bizSocket) {
         super(bizSocket);
@@ -107,6 +107,13 @@ public abstract class AbstractFragmentRequestQueue<T extends Packet> extends Req
     public boolean isComplete(FragmentInfo fragmentInfo) {
         return fragmentInfo.getPackets() != null
                 && fragmentInfo.getPackets().size() == fragmentInfo.getTotalSize();
+    }
+
+    /**
+     * 清空分片的包
+     */
+    public void clearFragment() {
+        fragmentInfoMap.clear();
     }
 
     /**

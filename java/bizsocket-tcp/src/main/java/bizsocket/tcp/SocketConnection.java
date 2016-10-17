@@ -301,13 +301,21 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
      */
     void notifySendSuccessful(Packet packet) {
         for (PacketListener packetListener : packetListeners) {
-            packetListener.onSendSuccessful(packet);
+            try {
+                packetListener.onSendSuccessful(packet);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 
     void handlerReceivedPacket(Packet packet) {
         for (PacketListener packetListener : packetListeners) {
-            packetListener.processPacket(packet);
+            try {
+                packetListener.processPacket(packet);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
     }
 
