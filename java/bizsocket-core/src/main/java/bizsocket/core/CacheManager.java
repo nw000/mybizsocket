@@ -31,10 +31,6 @@ public class CacheManager {
             if (cacheEntry.getType() == CacheEntry.TYPE_EXPIRED_NOT_USE) {
                 return null;
             }
-//            if (cacheEntry.getType() == CacheEntry.TYPE_EXPIRED_USE_AND_REMOVE) {
-//                remove(cacheEntry);
-//                return cacheEntry;
-//            }
         }
         return cacheEntry;
     }

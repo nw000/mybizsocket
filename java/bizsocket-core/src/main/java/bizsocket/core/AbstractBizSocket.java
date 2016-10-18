@@ -63,7 +63,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     public void request(Object tag, int command, ByteString requestBody, Map attach, ResponseHandler responseHandler) {
         RequestContext requestContext = buildRequestContext(tag,command, requestBody,attach,responseHandler);
         requestQueue.addRequestContext(requestContext);
-        requestContext.startTimeoutTimer();
+        //requestContext.startTimeoutTimer();
     }
 
     @Override

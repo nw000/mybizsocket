@@ -1,5 +1,7 @@
 package bizsocket.core;
 
+import bizsocket.logger.Logger;
+import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +9,8 @@ import java.util.concurrent.TimeUnit;
  * Created by tong on 16/10/5.
  */
 public abstract class CacheEntry {
+    private final Logger logger = LoggerFactory.getLogger(CacheEntry.class.getSimpleName());
+
     /**
      * 过期不使用
      */
@@ -50,7 +54,7 @@ public abstract class CacheEntry {
             throw new IllegalArgumentException("can not update packet, expect cmd: " + packet.getCommand() + " but param cmd is " + networkPacket.getCommand());
         }
         this.packet = networkPacket;
-
+        logger.debug("save or update cache packet: " + packet);
         onUpdateEntry(networkPacket);
     }
 
