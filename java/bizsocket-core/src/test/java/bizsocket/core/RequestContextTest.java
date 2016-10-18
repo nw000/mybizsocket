@@ -1,6 +1,5 @@
 package bizsocket.core;
 
-import bizsocket.core.RequestContext;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -47,7 +46,7 @@ public class RequestContextTest extends TestCase {
         });
         requestContext.setReadTimeout(2);
         assertEquals(timeout,false);
-        requestContext.onAddToQuote();
+        requestContext.onAddToQueue();
         assertEquals(timeout, false);
         Thread.sleep(2100);
         assertEquals(timeout, true);
@@ -65,10 +64,10 @@ public class RequestContextTest extends TestCase {
         });
         requestContext.setReadTimeout(2);
         assertEquals(timeout,false);
-        requestContext.onAddToQuote();
+        requestContext.onAddToQueue();
         assertEquals(timeout, false);
 
-        requestContext.onRemoveFromQuoue();
+        requestContext.onRemoveFromQueue();
         Thread.sleep(2100);
         assertEquals(timeout, false);
     }

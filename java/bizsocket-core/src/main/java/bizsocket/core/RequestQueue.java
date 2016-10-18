@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class RequestQueue implements PacketListener,ConnectionListener {
     protected final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
-    private final List<RequestContext> requestContextList = new RequestContextQuoue();
+    private final List<RequestContext> requestContextList = new RequestContextQueue();
     private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
     private final List<AbstractSerialContext> mSerialContexts = new CopyOnWriteArrayList();
     private final InterceptorChain interceptorChain;
@@ -59,7 +59,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             else {
                 requestContextList.add(context);
             }
-            //context.onAddToQuote();
+            //context.onAddToQueue();
             if ((context.getFlags() & RequestContext.FLAG_REQUEST) != 0) {
 
                 InterceptorChain chain = getInterceptorChain();
@@ -88,8 +88,9 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             @Override
             public void onRequestTimeout(RequestContext context) {
                 //请求超时
-                RequestTimeoutException exception = new RequestTimeoutException("网络异常，请检查网络连接");
+                RequestTimeoutException exception = new RequestTimeoutException("请求超时，请检查网络连接");
                 context.sendFailureMessage(context.getRequestCommand(), exception);
+                logger.debug("request timeout: " + requestContext);
                 removeRequestContext(context);
             }
         });
@@ -104,7 +105,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             return;
         }
 //        for (RequestContext context : requestContexts) {
-//            context.onRemoveFromQuoue();
+//            context.onRemoveFromQueue();
 //        }
         requestContextList.removeAll(requestContexts);
     }

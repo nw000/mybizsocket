@@ -1,7 +1,5 @@
 package bizsocket.core;
 
-import bizsocket.core.RequestContext;
-import bizsocket.core.RequestContextQuoue;
 import junit.framework.TestCase;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -10,8 +8,8 @@ import java.util.Random;
 /**
  * Created by tong on 16/10/6.
  */
-public class RequestContextQuoueTest extends TestCase {
-    final RequestContextQuoue requestContextQuoue = new RequestContextQuoue();
+public class RequestContextQueueTest extends TestCase {
+    final RequestContextQueue requestContextQueue = new RequestContextQueue();
     boolean isInvokeOnAddToQuote;
     boolean isInvokeOnRemoveFromQuoue;
 
@@ -19,7 +17,7 @@ public class RequestContextQuoueTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        requestContextQuoue.clear();
+        requestContextQueue.clear();
         isInvokeOnAddToQuote = false;
         isInvokeOnRemoveFromQuoue = false;
     }
@@ -33,27 +31,27 @@ public class RequestContextQuoueTest extends TestCase {
                     for (int j = 0; j < 20; j++) {
                         int i = new Random().nextInt(10);
                         if (i == 1) {
-                            if (requestContextQuoue.size() > 0) {
-                                int position = new Random().nextInt(requestContextQuoue.size());
+                            if (requestContextQueue.size() > 0) {
+                                int position = new Random().nextInt(requestContextQueue.size());
                                 if (position < 0) {
                                     position = 0;
                                 }
-                                if (position >= requestContextQuoue.size()) {
-                                    position = requestContextQuoue.size() - 1;
+                                if (position >= requestContextQueue.size()) {
+                                    position = requestContextQueue.size() - 1;
                                 }
-                                requestContextQuoue.remove(position);
+                                requestContextQueue.remove(position);
                             }
                         }
                         else if (i == 2) {
-                            for (RequestContext context : requestContextQuoue) {
+                            for (RequestContext context : requestContextQueue) {
                                 System.out.println(context);
                             }
                         }
                         else if (i == 3) {
-                            requestContextQuoue.clear();
+                            requestContextQueue.clear();
                         }
                         else {
-                            requestContextQuoue.add(new RequestContext());
+                            requestContextQueue.add(new RequestContext());
                         }
                     }
                 }
@@ -65,21 +63,21 @@ public class RequestContextQuoueTest extends TestCase {
     public void testAdd() throws Exception {
         final RequestContext requestContext = new RequestContext(){
             @Override
-            public void onAddToQuote() {
+            public void onAddToQueue() {
                 isInvokeOnAddToQuote = true;
-                super.onAddToQuote();
+                super.onAddToQueue();
             }
         };
 
-        requestContextQuoue.add(requestContext);
+        requestContextQueue.add(requestContext);
         assertEquals(isInvokeOnAddToQuote,true);
-        requestContextQuoue.clear();
+        requestContextQueue.clear();
 
-        requestContextQuoue.add(0,requestContext);
+        requestContextQueue.add(0,requestContext);
         assertEquals(isInvokeOnAddToQuote,true);
-        requestContextQuoue.clear();
+        requestContextQueue.clear();
 
-        requestContextQuoue.addAll(new ArrayList<RequestContext>(){{add(requestContext);}});
+        requestContextQueue.addAll(new ArrayList<RequestContext>(){{add(requestContext);}});
         assertEquals(isInvokeOnAddToQuote, true);
     }
 
@@ -87,33 +85,33 @@ public class RequestContextQuoueTest extends TestCase {
     public void testRemove() throws Exception {
         final RequestContext requestContext = new RequestContext(){
             @Override
-            public void onRemoveFromQuoue() {
+            public void onRemoveFromQueue() {
                 isInvokeOnRemoveFromQuoue = true;
-                super.onRemoveFromQuoue();
+                super.onRemoveFromQueue();
             }
         };
 
-        requestContextQuoue.add(requestContext);
+        requestContextQueue.add(requestContext);
         assertEquals(isInvokeOnRemoveFromQuoue,false);
-        requestContextQuoue.remove(requestContext);
+        requestContextQueue.remove(requestContext);
         assertEquals(isInvokeOnRemoveFromQuoue,true);
 
         isInvokeOnRemoveFromQuoue = false;
-        requestContextQuoue.add(requestContext);
+        requestContextQueue.add(requestContext);
         assertEquals(isInvokeOnRemoveFromQuoue,false);
-        requestContextQuoue.remove(0);
+        requestContextQueue.remove(0);
         assertEquals(isInvokeOnRemoveFromQuoue,true);
 
         isInvokeOnRemoveFromQuoue = false;
-        requestContextQuoue.add(requestContext);
+        requestContextQueue.add(requestContext);
         assertEquals(isInvokeOnRemoveFromQuoue,false);
-        requestContextQuoue.removeAll(new ArrayList<Object>(){{add(requestContext);}});
+        requestContextQueue.removeAll(new ArrayList<Object>(){{add(requestContext);}});
         assertEquals(isInvokeOnRemoveFromQuoue, true);
 
         isInvokeOnRemoveFromQuoue = false;
-        requestContextQuoue.add(requestContext);
+        requestContextQueue.add(requestContext);
         assertEquals(isInvokeOnRemoveFromQuoue,false);
-        requestContextQuoue.clear();
+        requestContextQueue.clear();
         assertEquals(isInvokeOnRemoveFromQuoue,true);
     }
 }

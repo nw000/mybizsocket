@@ -6,7 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by tong on 16/10/5.
  */
-public class RequestContextQuoue extends CopyOnWriteArrayList<RequestContext> {
+class RequestContextQueue extends CopyOnWriteArrayList<RequestContext> {
     @Override
     public boolean remove(Object o) {
         if (o != null) {
@@ -64,14 +64,14 @@ public class RequestContextQuoue extends CopyOnWriteArrayList<RequestContext> {
     private void beforeAdd(RequestContext requestContext) {
         if (requestContext != null) {
             if (!contains(requestContext)) {
-                requestContext.onAddToQuote();
+                requestContext.onAddToQueue();
             }
         }
     }
 
     private void beforeRemove(RequestContext requestContext) {
         if (requestContext != null) {
-            requestContext.onRemoveFromQuoue();
+            requestContext.onRemoveFromQueue();
         }
     }
 }

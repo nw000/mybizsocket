@@ -1,5 +1,7 @@
 package bizsocket.core;
 
+import bizsocket.logger.Logger;
+import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
 import okio.ByteString;
 
@@ -40,6 +42,8 @@ public class RequestContext implements ResponseHandler {
      * 同一个请求不允许重复出现在队列中
      */
     public static final int FLAG_NOT_SUPPORT_REPEAT = 1 << 5;
+
+    private final Logger logger = LoggerFactory.getLogger(RequestContext.class.getSimpleName());
 
     /**
      * 状态机
@@ -161,11 +165,12 @@ public class RequestContext implements ResponseHandler {
         this.readTimeout = readTimeout;
     }
 
-    public void onAddToQuote() {
+    public void onAddToQueue() {
         startTimeoutTimer();
     }
 
-    public void onRemoveFromQuoue() {
+    public void onRemoveFromQueue() {
+        logger.debug("remove from queue: " + toString());
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -178,6 +183,14 @@ public class RequestContext implements ResponseHandler {
 
     public void setAttach(Map attach) {
         this.attach = attach;
+    }
+
+    @Override
+    public String toString() {
+        return "RequestContext{" +
+                "requestPacket=" + requestPacket +
+                ", requestBody=" + requestBody +
+                '}';
     }
 
     public interface OnRequestTimeoutListener {

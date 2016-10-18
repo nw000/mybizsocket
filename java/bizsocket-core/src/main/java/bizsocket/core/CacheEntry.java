@@ -53,9 +53,16 @@ public abstract class CacheEntry {
         if (packet != null && packet.getCommand() != networkPacket.getCommand()) {
             throw new IllegalArgumentException("can not update packet, expect cmd: " + packet.getCommand() + " but param cmd is " + networkPacket.getCommand());
         }
-        this.packet = networkPacket;
-        logger.debug("save or update cache packet: " + packet);
-        onUpdateEntry(networkPacket);
+        if (validator == null || validator.verify(networkPacket)) {
+            this.packet = networkPacket;
+            logger.debug("save or update cache packet: " + packet);
+            onUpdateEntry(networkPacket);
+        }
+        else {
+            if (validator != null) {
+                logger.debug("ignore cache; check fail packet: " + networkPacket);
+            }
+        }
     }
 
     public int getCommand() {

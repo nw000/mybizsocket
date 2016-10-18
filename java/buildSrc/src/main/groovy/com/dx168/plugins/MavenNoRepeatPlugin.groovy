@@ -44,7 +44,7 @@ class MavenNoRepeatPlugin implements Plugin<Project>,TaskExecutionListener,Build
 
     @Override
     void beforeExecute(Task task) {
-        if (task.project != bootProject) {
+        if (task.project != bootProject || true) {
             return
         }
         if (!'uploadArchives'.equals(task.name)) {
@@ -124,6 +124,9 @@ class MavenNoRepeatPlugin implements Plugin<Project>,TaskExecutionListener,Build
     }
 
     void checkScriptFile(File buildDir) {
+        if (!buildDir.exists()) {
+            buildDir.mkdirs()
+        }
         File script = new File(buildDir,SCRIPT_NAME)
 
         if (script.exists() && script.isFile()) {

@@ -100,12 +100,12 @@ public class RequestContextProxy extends RequestContext {
     }
 
     @Override
-    public void onAddToQuote() {
-        base.onAddToQuote();
+    public void onAddToQueue() {
+        base.onAddToQueue();
     }
 
     @Override
-    public void onRemoveFromQuoue() {
-        base.onRemoveFromQuoue();
+    public void onRemoveFromQueue() {
+        base.onRemoveFromQueue();
     }
 }
