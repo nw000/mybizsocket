@@ -65,11 +65,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
     }
 
     public void sendSuccessMessage(NotifyContext notifyContext, int command, Packet packet) {
-        try {
-            notifyContext.responseHandler.sendSuccessMessage(command, null, packet);
-        } catch (Throwable e) {
-
-        }
+        notifyContext.sendSuccessMessage(command, packet);
     }
 
     public static class NotifyContext {
@@ -83,6 +79,14 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
             this.cmd = cmd;
             this.tag = tag;
             this.responseHandler = responseHandler;
+        }
+
+        public void sendSuccessMessage(int command, Packet packet) {
+            try {
+                responseHandler.sendSuccessMessage(command, null, packet);
+            } catch (Throwable e) {
+
+            }
         }
     }
 }

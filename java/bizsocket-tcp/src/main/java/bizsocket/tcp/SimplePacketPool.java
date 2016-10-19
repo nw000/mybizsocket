@@ -1,29 +1,57 @@
 package bizsocket.tcp;
 
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by tong on 16/10/19.
  */
 public class SimplePacketPool implements PacketPool {
-    protected final Queue<Packet> queue = new ArrayBlockingQueue<Packet>(50,true);
+    private static final int QUEUE_SIZE = 60;
+    private static final int COOLING_PERIOD = 10 * 1000;
+
+    protected final Set<Entity> queue = Collections.synchronizedSet(new HashSet<Entity>());
 
     @Override
     public Packet pull() {
-        Packet packet = queue.poll();
-        if (packet != null) {
-            packet.onPrepareReuse();
+        Entity entity = null;
+        for (Entity e : queue) {
+            if (e.isEnable()) {
+                entity = e;
+                break;
+            }
         }
-        return packet;
+        if (entity != null) {
+            queue.remove(entity);
+            Packet packet = entity.packet;
+            packet.setFlags(packet.getFlags() & ~Packet.FLAG_RECYCLED);
+            packet.onPrepareReuse();
+            return packet;
+        }
+        return null;
     }
 
     @Override
     public void push(Packet packet) {
-        if (queue.size() == 100) {
+        if (queue.size() == QUEUE_SIZE) {
             return;
         }
+        queue.add(new Entity(packet));
+    }
 
-        queue.add(packet);
+    static class Entity {
+        long saveMillis;
+        Packet packet;
+
+        public Entity(Packet packet) {
+            this.packet = packet;
+            saveMillis = System.currentTimeMillis();
+        }
+
+        boolean isEnable() {
+            long current = System.currentTimeMillis();
+            return current >= saveMillis + COOLING_PERIOD && (packet.getFlags() & Packet.FLAG_RECYCLED) != 0;
+        }
     }
 }

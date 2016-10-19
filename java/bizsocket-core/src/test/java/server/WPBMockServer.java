@@ -27,7 +27,7 @@ public class WPBMockServer {
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(9103);
 
-        new QuoteThread().start();
+        //new QuoteThread().start();
         boolean flag = true;
         while (flag) {
             Socket socket = serverSocket.accept();
@@ -89,7 +89,7 @@ public class WPBMockServer {
                 reader = Okio.buffer(Okio.source(socket.getInputStream()));
                 writer = Okio.buffer(Okio.sink(socket.getOutputStream()));
                 while (isRunning) {
-                    WPBPacket packet = WPBPacket.build(reader);
+                    WPBPacket packet = WPBPacket.build(null, reader);
                     handleRequest(packet);
                     try {
                         Thread.sleep(500);

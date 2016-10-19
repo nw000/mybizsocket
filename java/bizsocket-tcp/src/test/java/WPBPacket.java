@@ -17,6 +17,7 @@ public class WPBPacket extends Packet {
     public static final int CMD_PRICE = 1;
     public static final int CMD_CREATE_ORDER = 2;
     public static final int CMD_WEBSOCKET = 8888;
+    public static final int CMD_HEARTBEAT = 8888;
 
     public int length;
     public int cmd;
@@ -74,6 +75,10 @@ public class WPBPacket extends Packet {
     @Override
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override

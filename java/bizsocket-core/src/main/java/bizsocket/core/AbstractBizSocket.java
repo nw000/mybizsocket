@@ -157,7 +157,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
             requestPacket.setDescription(desc);
         }
         RequestContext requestContext = new RequestContext(request,requestPacket,responseHandler);
-        requestContext.setFlags(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
+        requestContext.setFlags(RequestContext.FLAG_CHECK_CONNECT_STATUS);
         requestContext.setReadTimeout(configuration.getReadTimeout());
         return requestContext;
     }

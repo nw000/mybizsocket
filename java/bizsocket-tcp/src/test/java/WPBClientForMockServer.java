@@ -1,5 +1,7 @@
 import bizsocket.tcp.*;
 import okio.BufferedSource;
+import okio.ByteString;
+
 import java.io.IOException;
 import java.util.Random;
 
@@ -18,6 +20,7 @@ public class WPBClientForMockServer extends SocketConnection {
 
     public static void main(String[] args) {
         WPBClientForMockServer client = new WPBClientForMockServer("127.0.0.1",9103);
+        client.setHeartbeat(5000);
         client.addPacketListener(new PacketListener() {
             @Override
             public void onSendSuccessful(Packet packet) {
@@ -30,10 +33,13 @@ public class WPBClientForMockServer extends SocketConnection {
             }
         });
         client.connectAndStartWatch();
+        client.startHeartBeat();
 
+        String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
+        client.sendPacket(client.getPacketFactory().getRequestPacket(new Request.Builder().command(WPBPacket.CMD_CREATE_ORDER).utf8body(json).build()));
         while (true) {
             try {
-                String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
+                json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
                 client.sendPacket(client.getPacketFactory().getRequestPacket(new Request.Builder().command(WPBPacket.CMD_CREATE_ORDER).utf8body(json).build()));
                 Thread.sleep(new Random().nextInt(4000) + 1000);
             } catch (InterruptedException e) {
@@ -49,8 +55,14 @@ public class WPBClientForMockServer extends SocketConnection {
         }
 
         @Override
-        public Packet getHeartBeatPacket(Packet recyclable) {
-            return null;
+        public Packet getHeartBeatPacket(Packet reusable) {
+            int cmd = WPBPacket.CMD_HEARTBEAT;
+            if (reusable != null && reusable instanceof WPBPacket) {
+                reusable.setCommand(cmd);
+                ((WPBPacket) reusable).setContent("{}");
+                return reusable;
+            }
+            return new WPBPacket(WPBPacket.CMD_HEARTBEAT, ByteString.encodeUtf8("{}"));
         }
 
         @Override

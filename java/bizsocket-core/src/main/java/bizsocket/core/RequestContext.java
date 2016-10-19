@@ -14,11 +14,6 @@ import java.util.TimerTask;
  */
 public class RequestContext implements ResponseHandler {
     /**
-     * 加入请求队列
-     */
-    public static final int FLAG_REQUEST = 1 << 0;
-
-    /**
      * 请求已发送
      */
     public static final int FLAG_REQUEST_ALREADY_SEND = 1 << 1;
@@ -58,7 +53,7 @@ public class RequestContext implements ResponseHandler {
     /**
      * 状态机
      */
-    private int flags = FLAG_REQUEST | FLAG_CHECK_CONNECT_STATUS;
+    private int flags = FLAG_CHECK_CONNECT_STATUS;
     private OnRequestTimeoutListener onRequestTimeoutListener;
     private Timer timer;
     private long readTimeout = Configuration.DEFAULT_READ_TIMEOUT;

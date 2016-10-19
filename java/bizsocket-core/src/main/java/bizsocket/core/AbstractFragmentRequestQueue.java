@@ -116,6 +116,16 @@ public abstract class AbstractFragmentRequestQueue<T extends Packet> extends Req
         fragmentInfoMap.clear();
     }
 
+    @Override
+    public void connectionClosed() {
+        clearFragment();
+    }
+
+    @Override
+    public void connectionClosedOnError(Exception e) {
+        clearFragment();
+    }
+
     /**
      * 分段数据
      * @param <T>

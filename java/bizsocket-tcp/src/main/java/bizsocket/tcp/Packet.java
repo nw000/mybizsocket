@@ -20,6 +20,11 @@ public abstract class Packet {
      */
     public static final int FLAG_AUTO_RECYCLE_ON_SEND_SUCCESS = 1 << 1;
 
+    /**
+     * 处于被回收状态
+     */
+    public static final int FLAG_RECYCLED = 1 << 2;
+
     private int command;
     private String description;
     private int flags = FLAG_RECYCLABLE;
@@ -104,7 +109,12 @@ public abstract class Packet {
         if ((getFlags() & FLAG_RECYCLABLE) == 0) {
             return;
         }
+        if ((getFlags() & FLAG_RECYCLED) != 0) {
+            return;
+        }
+
         if (packetPool != null) {
+            setFlags(getFlags() | FLAG_RECYCLED);
             packetPool.push(this);
         }
         onRecycle();

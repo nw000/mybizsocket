@@ -150,9 +150,10 @@ public class OrderListSerialContext extends AbstractSerialContext {
 
                 WPBPacket wpbPacket = (WPBPacket) packet;
                 wpbPacket.setCommand(orderListPacket.getCommand());
-                wpbPacket.setContent(obj.toString());
+                wpbPacket.setContent(orderListPacket.getContent());
+                wpbPacket.setPacketID(orderListPacket.getPacketID());
 
-                System.out.println("合并订单列表和类型: " + wpbPacket.getContent());
+                System.out.println("合并订单列表和类型: " + orderListPacket.getContent());
                 return wpbPacket;
             } catch (Throwable e) {
                 e.printStackTrace();
