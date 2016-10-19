@@ -10,9 +10,28 @@ import bizsocket.logger.LoggerFactory;
 public abstract class Packet {
     private static final Logger LOGGER = LoggerFactory.getLogger(Packet.class.getSimpleName());
 
-    private long longPacketId;
+    /**
+     * 可被回收复用的
+     */
+    public static final int FLAG_RECYCLABLE = 1;
 
+    /**
+     * 刚发送成功后自动回收
+     */
+    public static final int FLAG_AUTO_RECYCLE_ON_SEND_SUCCESS = 1 << 1;
+
+    private int command;
     private String description;
+    private int flags = FLAG_RECYCLABLE;
+    private PacketPool packetPool;
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
+    }
 
     /**
      * Returns the packet as bytes.
@@ -28,15 +47,12 @@ public abstract class Packet {
 
     public abstract void setPacketID(String packetID);
 
-    public abstract int getCommand();
+    public int getCommand() {
+        return command;
+    }
 
-    public abstract void setCommand(int command);
-
-    public String nextPacketID() {
-        if (longPacketId == Long.MAX_VALUE) {
-            longPacketId = Long.MAX_VALUE;
-        }
-        return String.valueOf(Long.valueOf(longPacketId));
+    public void setCommand(int command) {
+        this.command = command;
     }
 
     public void setDescription(String description) {
@@ -51,7 +67,6 @@ public abstract class Packet {
         return this.description;
     }
 
-
     public void onSendSuccessful() {
         LOGGER.debug("-------------------send packet: " + getCommand() + " ,desc: " + getDescription() + ", id: " + getPacketID());
         LOGGER.debug("-------------------send content: " + getContent());
@@ -64,5 +79,34 @@ public abstract class Packet {
     public void onDispatch() {
         LOGGER.debug("-------------------receive: cmd: " + getCommand() + ", id: " + getPacketID() + " ,desc: " + getDescription());
         LOGGER.debug("-------------------receive: content: " + getContent());
+    }
+
+    void setPacketPool(PacketPool packetPool) {
+        this.packetPool = packetPool;
+    }
+
+    /**
+     * 准备复用时调用
+     */
+    public void onPrepareReuse() {
+        LOGGER.debug("prepare reuse： " + toString());
+    }
+
+    public void onRecycle() {
+        LOGGER.debug("packet recycled： " + toString());
+
+    }
+
+    /**
+     * 回收packet
+     */
+    public void recycle() {
+        if ((getFlags() & FLAG_RECYCLABLE) == 0) {
+            return;
+        }
+        if (packetPool != null) {
+            packetPool.push(this);
+        }
+        onRecycle();
     }
 }

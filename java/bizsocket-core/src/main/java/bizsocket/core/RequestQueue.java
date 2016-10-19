@@ -340,7 +340,12 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         if (packet == null) {
             return;
         }
-        packet.onReceiveFromServer();
+        try {
+            packet.onReceiveFromServer();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
         if (prepareDispatchPacket(packet)) {
             boolean intercepted = getInterceptorChain().invokePesponseHandle(packet.getCommand(),packet);
             if (intercepted) {

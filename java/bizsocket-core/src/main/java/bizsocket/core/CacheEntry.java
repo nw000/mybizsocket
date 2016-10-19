@@ -54,6 +54,8 @@ public abstract class CacheEntry {
             throw new IllegalArgumentException("can not update packet, expect cmd: " + packet.getCommand() + " but param cmd is " + networkPacket.getCommand());
         }
         if (validator == null || validator.verify(networkPacket)) {
+            //被缓存的包不可复用
+            networkPacket.setFlags(networkPacket.getFlags() & ~Packet.FLAG_RECYCLABLE);
             this.packet = networkPacket;
             logger.debug("save or update cache packet: " + packet);
             onUpdateEntry(networkPacket);

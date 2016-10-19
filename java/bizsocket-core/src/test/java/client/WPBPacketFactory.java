@@ -12,17 +12,17 @@ import java.io.IOException;
  */
 public class WPBPacketFactory extends PacketFactory {
     @Override
-    public Packet getRequestPacket(Request request) {
+    public Packet getRequestPacket(Packet reusable,Request request) {
         return new common.WPBPacket(request.command(),request.body());
     }
 
     @Override
-    public Packet getHeartBeatPacket() {
+    public Packet getHeartBeatPacket(Packet reusable) {
         return null;
     }
 
     @Override
-    public Packet getRemotePacket(BufferedSource source) throws IOException {
+    public Packet getRemotePacket(Packet reusable,BufferedSource source) throws IOException {
         return WPBPacket.build(source);
     }
 }

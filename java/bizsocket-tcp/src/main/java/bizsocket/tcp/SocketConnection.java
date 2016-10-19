@@ -248,6 +248,7 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
             return;
         }
         packetWriter.sendPacket(packet);
+        packet.setPacketPool(getPacketFactory().getPacketPool());
     }
 
     public void startHeartBeat() {
@@ -255,7 +256,11 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                sendPacket(packetFactory.getHeartBeatPacket());
+                Packet packet = packetFactory.getHeartBeatPacket();
+                if (packet == null) {
+                    return;
+                }
+                sendPacket(packet);
             }
         };
         timer = new Timer();
@@ -307,9 +312,14 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
                 e.printStackTrace();
             }
         }
+
+        if ((packet.getFlags() & Packet.FLAG_AUTO_RECYCLE_ON_SEND_SUCCESS) != 0) {
+            packet.recycle();
+        }
     }
 
     void handlerReceivedPacket(Packet packet) {
+        packet.setPacketPool(getPacketFactory().getPacketPool());
         for (PacketListener packetListener : packetListeners) {
             try {
                 packetListener.processPacket(packet);

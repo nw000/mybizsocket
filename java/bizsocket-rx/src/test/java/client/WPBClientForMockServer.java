@@ -101,17 +101,17 @@ public class WPBClientForMockServer extends AbstractBizSocket {
 
     public static class WPBPacketFactory extends PacketFactory {
         @Override
-        public Packet getRequestPacket(Request request) {
+        public Packet getRequestPacket(Packet reusable,Request request) {
             return new WPBPacket(request.command(),request.body());
         }
 
         @Override
-        public Packet getHeartBeatPacket() {
+        public Packet getHeartBeatPacket(Packet recyclable) {
             return null;
         }
 
         @Override
-        public Packet getRemotePacket(BufferedSource source) throws IOException {
+        public Packet getRemotePacket(Packet reusable,BufferedSource source) throws IOException {
             return WPBPacket.build(source);
         }
     }
