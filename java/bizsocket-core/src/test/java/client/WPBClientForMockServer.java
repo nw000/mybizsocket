@@ -3,44 +3,24 @@ package client;
 import bizsocket.core.*;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
+import bizsocket.tcp.Request;
 import common.WPBCmd;
 import common.WPBPacket;
 import okio.BufferedSource;
 import okio.ByteString;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Created by tong on 16/10/3.
  */
-public class WPBClientForMockServer extends AbstractBizSocket implements PacketFactory {
+public class WPBClientForMockServer extends AbstractBizSocket {
     public WPBClientForMockServer(Configuration configuration) {
         super(configuration);
     }
 
     @Override
     protected PacketFactory createPacketFactory() {
-        return this;
-    }
-
-    @Override
-    public Packet buildRequestPacket(int command, ByteString requestBody, Map<String, String> attach) {
-        return new common.WPBPacket(command,requestBody);
-    }
-
-    @Override
-    public Packet buildPacket(BufferedSource source) throws IOException {
-        return WPBPacket.build(source);
-    }
-
-    @Override
-    public boolean supportHeartBeat() {
-        return false;
-    }
-
-    @Override
-    public Packet buildHeartBeatPacket() {
-        return null;
+        return new WPBPacketFactory();
     }
 
     public static void main(String[] args) {
@@ -83,7 +63,8 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
         });
 
         String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
-        client.request(client, WPBCmd.CREATE_ORDER.getValue(), ByteString.encodeUtf8(json),null, new ResponseHandler() {
+
+        client.request(new Request.Builder().command(WPBCmd.CREATE_ORDER.getValue()).utf8body(json).build(), new ResponseHandler() {
             @Override
             public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
                 System.out.println("cmd: " + command + " ,requestBody: " + requestBody + " attach: " + " responsePacket: " + responsePacket);
@@ -96,7 +77,7 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
         });
 
         json = "{\"pageSize\" : \"10000\"}";
-        client.request(client, WPBCmd.QUERY_ORDER_LIST.getValue(), ByteString.encodeUtf8(json),null, new ResponseHandler() {
+        client.request(new Request.Builder().command(WPBCmd.QUERY_ORDER_LIST.getValue()).utf8body(json).build(), new ResponseHandler() {
             @Override
             public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
                 System.out.println("cmd: " + command + " ,requestBody: " + requestBody + " responsePacket: " + responsePacket);
@@ -114,6 +95,23 @@ public class WPBClientForMockServer extends AbstractBizSocket implements PacketF
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static class WPBPacketFactory extends PacketFactory {
+        @Override
+        public Packet getRequestPacket(Request request) {
+            return new WPBPacket(request.command(),request.body());
+        }
+
+        @Override
+        public Packet getHeartBeatPacket() {
+            return null;
+        }
+
+        @Override
+        public Packet getRemotePacket(BufferedSource source) throws IOException {
+            return WPBPacket.build(source);
         }
     }
 }

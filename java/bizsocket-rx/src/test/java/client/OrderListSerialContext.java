@@ -6,10 +6,10 @@ import bizsocket.core.RequestQueue;
 import bizsocket.core.SerialSignal;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
+import bizsocket.tcp.Request;
 import common.WPBCmd;
 import common.WPBPacket;
 import common.WPBProtocolUtil;
-import okio.ByteString;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,7 +127,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
         }
 
         try {
-            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().buildRequestPacket(WPBCmd.QUERY_ORDER_TYPE.getValue(), ByteString.encodeUtf8(params.toString()), null);
+            return (WPBPacket) requestQueue.getBizSocket().getPacketFactory().getRequestPacket(new Request.Builder().command(WPBCmd.QUERY_ORDER_TYPE.getValue()).utf8body(params.toString()).build());
         } catch (Throwable e) {
 
         }

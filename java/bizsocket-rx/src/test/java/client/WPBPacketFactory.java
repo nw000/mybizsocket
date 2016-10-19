@@ -2,34 +2,28 @@ package client;
 
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
+import bizsocket.tcp.Request;
 import common.WPBPacket;
 import okio.BufferedSource;
-import okio.ByteString;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Created by tong on 16/10/5.
  */
-public class WPBPacketFactory implements PacketFactory {
+public class WPBPacketFactory extends PacketFactory {
     @Override
-    public Packet buildRequestPacket(int command, ByteString requestBody, Map<String, String> attach) {
-        return new WPBPacket(command,requestBody);
+    public Packet getRequestPacket(Request request) {
+        return new common.WPBPacket(request.command(),request.body());
     }
 
     @Override
-    public Packet buildPacket(BufferedSource source) throws IOException {
-        return WPBPacket.build(source);
-    }
-
-    @Override
-    public boolean supportHeartBeat() {
-        return false;
-    }
-
-    @Override
-    public Packet buildHeartBeatPacket() {
+    public Packet getHeartBeatPacket() {
         return null;
+    }
+
+    @Override
+    public Packet getRemotePacket(BufferedSource source) throws IOException {
+        return WPBPacket.build(source);
     }
 }

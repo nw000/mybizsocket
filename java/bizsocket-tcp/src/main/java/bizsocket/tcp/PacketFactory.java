@@ -1,23 +1,24 @@
 package bizsocket.tcp;
 
 import java.io.IOException;
-import java.util.Map;
-
 import okio.BufferedSource;
-import okio.ByteString;
 
 /**
  * Created by tong on 16/10/3.
  */
-public interface PacketFactory {
+public abstract class PacketFactory {
     /**
      * create request packet with command and body
-     * @param command
-     * @param requestBody
-     * @param attach
+     * @param request
      * @return
      */
-    Packet buildRequestPacket(int command, ByteString requestBody, Map<String, String> attach);
+    public abstract Packet getRequestPacket(Request request);
+
+    /**
+     * create heartbeat packet
+     * @return
+     */
+    public abstract Packet getHeartBeatPacket();
 
     /**
      * create packet from the stream of server
@@ -25,9 +26,5 @@ public interface PacketFactory {
      * @return
      * @throws IOException
      */
-    Packet buildPacket(BufferedSource source) throws IOException;
-
-    boolean supportHeartBeat();
-
-    Packet buildHeartBeatPacket();
+    public abstract Packet getRemotePacket(BufferedSource source) throws IOException;
 }

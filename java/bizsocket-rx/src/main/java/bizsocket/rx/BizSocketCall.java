@@ -1,6 +1,5 @@
 package bizsocket.rx;
 
-import bizsocket.core.Constants;
 import bizsocket.core.ResponseHandler;
 import bizsocket.tcp.Packet;
 import com.google.gson.internal.$Gson$Types;
@@ -11,8 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by tong on 16/10/6.
@@ -26,18 +23,14 @@ public class BizSocketCall {
         final int command = getCommand(request,method,args);
         System.out.print("cmd: " + command);
         final Object tag = getTag(method,args);
-//        if (tag == null) {
-//            throw new IllegalArgumentException("request tag can not be null(@Tag tag)");
-//        }
         final ByteString requestBody = getRequestBody(bizSocketRxSupport,method,args);
 
         final String desc = request.desc();
         return Observable.create(new Observable.OnSubscribe<Object>() {
             @Override
             public void call(final Subscriber<? super Object> subscriber) {
-                Map<String,String> attach = new HashMap<String, String>();
-                attach.put(Constants.KEY_DESCRIPTION, desc);
-                bizSocketRxSupport.getBizSocket().request(tag, command, requestBody,attach, new ResponseHandler() {
+                bizsocket.tcp.Request req = new bizsocket.tcp.Request.Builder().tag(tag).command(command).body(requestBody).description(desc).build();
+                bizSocketRxSupport.getBizSocket().request(req, new ResponseHandler() {
                     @Override
                     public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
                         Object response = bizSocketRxSupport.getResponseConverter().convert(command,requestBody,getResponseType(method),responsePacket);

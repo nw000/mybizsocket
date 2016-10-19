@@ -83,7 +83,7 @@ class PacketReader {
         while (!this.done && this.readerThread == thisThread) {
             Packet packet = null;
             try {
-                packet = connection.getPacketFactory().buildPacket(reader);
+                packet = connection.getPacketFactory().getRemotePacket(reader);
                 if (packet != null && !done && this.readerThread == thisThread) {
                     connection.handlerReceivedPacket(packet);
                 }

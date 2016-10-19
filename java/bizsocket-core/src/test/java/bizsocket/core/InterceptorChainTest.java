@@ -1,8 +1,5 @@
 package bizsocket.core;
 
-import bizsocket.core.Interceptor;
-import bizsocket.core.InterceptorChain;
-import bizsocket.core.RequestContext;
 import bizsocket.tcp.Packet;
 import common.WPBPacket;
 import junit.framework.TestCase;
@@ -45,7 +42,7 @@ public class InterceptorChainTest extends TestCase {
         chain.addInterceptor(interceptor);
         chain.addInterceptor(interceptor);
 
-        chain.invokePostRequestHandle(new RequestContext());
+        chain.invokePostRequestHandle(new RequestContext(null,null,null));
         chain.invokePesponseHandle(1, new WPBPacket());
 
         assertEquals(receivePostRequestHandleCount,1);
@@ -86,7 +83,7 @@ public class InterceptorChainTest extends TestCase {
         chain.addInterceptor(interceptor);
         chain.addInterceptor(interceptor2);
 
-        chain.invokePostRequestHandle(new RequestContext());
+        chain.invokePostRequestHandle(new RequestContext(null,null,null));
         chain.invokePesponseHandle(1, new WPBPacket());
 
         assertEquals(receivePostRequestHandleCount,2);
@@ -146,7 +143,7 @@ public class InterceptorChainTest extends TestCase {
         field.setAccessible(true);
         List<Interceptor> interceptors = (List<Interceptor>) field.get(chain);
         assertEquals(interceptors.size(),3);
-        chain.invokePostRequestHandle(new RequestContext());
+        chain.invokePostRequestHandle(new RequestContext(null,null,null));
         chain.invokePesponseHandle(1, new WPBPacket());
 
         assertEquals(receivePostRequestHandleCount,1);

@@ -255,7 +255,7 @@ public abstract class SocketConnection implements Connection, ReconnectionManage
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                sendPacket(packetFactory.buildHeartBeatPacket());
+                sendPacket(packetFactory.getHeartBeatPacket());
             }
         };
         timer = new Timer();

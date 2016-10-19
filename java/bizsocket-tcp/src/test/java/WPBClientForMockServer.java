@@ -1,44 +1,19 @@
-import bizsocket.tcp.Packet;
-import bizsocket.tcp.PacketFactory;
-import bizsocket.tcp.PacketListener;
-import bizsocket.tcp.SocketConnection;
+import bizsocket.tcp.*;
 import okio.BufferedSource;
-import okio.ByteString;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Random;
 
 /**
  * Created by tong on 16/10/3.
  */
-public class WPBClientForMockServer extends SocketConnection implements PacketFactory {
+public class WPBClientForMockServer extends SocketConnection {
     public WPBClientForMockServer(String host, int port) {
         super(host, port);
     }
 
     @Override
     protected PacketFactory createPacketFactory() {
-        return this;
-    }
-
-    @Override
-    public Packet buildRequestPacket(int command, ByteString body, Map<String, String> attach) {
-        return new WPBPacket(command,body);
-    }
-
-    @Override
-    public Packet buildPacket(BufferedSource source) throws IOException {
-        return WPBPacket.build(source);
-    }
-
-    @Override
-    public boolean supportHeartBeat() {
-        return false;
-    }
-
-    @Override
-    public Packet buildHeartBeatPacket() {
-        return null;
+        return new WPBPacketFactory();
     }
 
     public static void main(String[] args) {
@@ -59,11 +34,28 @@ public class WPBClientForMockServer extends SocketConnection implements PacketFa
         while (true) {
             try {
                 String json = "{\"productId\" : \"1\",\"isJuan\" : \"0\",\"type\" : \"2\",\"sl\" : \"1\"}";
-                client.sendPacket(client.buildRequestPacket(WPBPacket.CMD_CREATE_ORDER,ByteString.encodeUtf8(json), null));
+                client.sendPacket(client.getPacketFactory().getRequestPacket(new Request.Builder().command(WPBPacket.CMD_CREATE_ORDER).utf8body(json).build()));
                 Thread.sleep(new Random().nextInt(4000) + 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static class WPBPacketFactory extends PacketFactory {
+        @Override
+        public Packet getRequestPacket(Request request) {
+            return new WPBPacket(request.command(),request.body());
+        }
+
+        @Override
+        public Packet getHeartBeatPacket() {
+            return null;
+        }
+
+        @Override
+        public Packet getRemotePacket(BufferedSource source) throws IOException {
+            return WPBPacket.build(source);
         }
     }
 }

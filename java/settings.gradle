@@ -18,7 +18,6 @@ include 'services:webservice'
 
 rootProject.name = 'com.dx168.bizsocket'
 
-include 'test'
 include 'bizsocket-logger'
 include 'bizsocket-tcp'
 include 'bizsocket-core'

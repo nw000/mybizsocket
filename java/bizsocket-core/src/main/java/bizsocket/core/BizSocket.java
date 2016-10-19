@@ -1,7 +1,6 @@
 package bizsocket.core;
 
-import java.util.Map;
-import okio.ByteString;
+import bizsocket.tcp.Request;
 
 /**
  * Created by tong on 16/10/4.
@@ -9,12 +8,11 @@ import okio.ByteString;
 public interface BizSocket {
     /**
      * execute new request
-     * @param tag
-     * @param command
-     * @param requestBody
+     * @param request
      * @param responseHandler
+     * @return
      */
-    void request(Object tag, int command, ByteString requestBody, Map<String,String> attach, ResponseHandler responseHandler);
+    Object request(Request request, ResponseHandler responseHandler);
 
     /**
      * cancel a request

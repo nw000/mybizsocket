@@ -38,9 +38,9 @@ public abstract class CacheEntry {
         this.type = type;
         this.validator = validator;
 
-        if (this.validator == null) {
-            throw new IllegalArgumentException("validator can not be null");
-        }
+//        if (this.validator == null) {
+//            throw new IllegalArgumentException("validator can not be null");
+//        }
     }
 
     public abstract boolean isExpired();

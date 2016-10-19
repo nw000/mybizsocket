@@ -51,7 +51,7 @@ public class RequestContextQueueTest extends TestCase {
                             requestContextQueue.clear();
                         }
                         else {
-                            requestContextQueue.add(new RequestContext());
+                            requestContextQueue.add(new RequestContext(null,null,null));
                         }
                     }
                 }
@@ -61,7 +61,7 @@ public class RequestContextQueueTest extends TestCase {
 
     @Test
     public void testAdd() throws Exception {
-        final RequestContext requestContext = new RequestContext(){
+        final RequestContext requestContext = new RequestContext(null,null,null){
             @Override
             public void onAddToQueue() {
                 isInvokeOnAddToQuote = true;
@@ -83,7 +83,7 @@ public class RequestContextQueueTest extends TestCase {
 
     @Test
     public void testRemove() throws Exception {
-        final RequestContext requestContext = new RequestContext(){
+        final RequestContext requestContext = new RequestContext(null,null,null){
             @Override
             public void onRemoveFromQueue() {
                 isInvokeOnRemoveFromQuoue = true;

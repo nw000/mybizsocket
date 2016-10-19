@@ -1,10 +1,6 @@
 package bizsocket.core;
 
-import java.util.Map;
-import bizsocket.tcp.Connection;
-import bizsocket.tcp.Packet;
-import bizsocket.tcp.PacketFactory;
-import bizsocket.tcp.SocketConnection;
+import bizsocket.tcp.*;
 import okio.ByteString;
 
 /**
@@ -60,10 +56,16 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     }
 
     @Override
-    public void request(Object tag, int command, ByteString requestBody, Map attach, ResponseHandler responseHandler) {
-        RequestContext requestContext = buildRequestContext(tag,command, requestBody,attach,responseHandler);
+    public Object request(Request request, ResponseHandler responseHandler) {
+        if (request == null) {
+            throw new IllegalArgumentException("request can not be null!");
+        }
+        if (request.tag() == null) {
+            request = request.newBuilder().tag(new Object()).build();
+        }
+        RequestContext requestContext = buildRequestContext(request,responseHandler);
         requestQueue.addRequestContext(requestContext);
-        //requestContext.startTimeoutTimer();
+        return request.tag();
     }
 
     @Override
@@ -148,22 +150,14 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         this.configuration = configuration;
     }
 
-    protected RequestContext buildRequestContext(Object tag, int command, ByteString requestBody, Map attach, ResponseHandler responseHandler) {
-        Packet packet = getPacketFactory().buildRequestPacket(command,requestBody,attach);
-        if (attach != null) {
-            String desc = (String) attach.get(Constants.KEY_DESCRIPTION);
-            if (desc != null && desc.trim().length() > 0) {
-                packet.setDescription(desc);
-            }
+    protected RequestContext buildRequestContext(Request request, ResponseHandler responseHandler) {
+        Packet requestPacket = getPacketFactory().getRequestPacket(request);
+        String desc = request.description();
+        if (desc != null && desc.trim().length() > 0) {
+            requestPacket.setDescription(desc);
         }
-
-        RequestContext requestContext = new RequestContext();
+        RequestContext requestContext = new RequestContext(request,requestPacket,responseHandler);
         requestContext.setFlags(RequestContext.FLAG_REQUEST | RequestContext.FLAG_CHECK_CONNECT_STATUS);
-        requestContext.setRequestCommand(command);
-        requestContext.setRequestBody(requestBody);
-        requestContext.setTag(tag);
-        requestContext.setResponseHandler(responseHandler);
-        requestContext.setRequestPacket(packet);
         requestContext.setReadTimeout(configuration.getReadTimeout());
         return requestContext;
     }

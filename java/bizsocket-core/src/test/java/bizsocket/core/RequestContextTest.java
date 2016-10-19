@@ -18,7 +18,7 @@ public class RequestContextTest extends TestCase {
 
     @Test
     public void testStartTimeoutTimer() throws Exception {
-        RequestContext requestContext = new RequestContext();
+        RequestContext requestContext = new RequestContext(null,null,null);
 
         requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
             @Override
@@ -36,7 +36,7 @@ public class RequestContextTest extends TestCase {
 
     @Test
     public void testOnAddToQuote() throws Exception {
-        RequestContext requestContext = new RequestContext();
+        RequestContext requestContext = new RequestContext(null,null,null);
 
         requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
             @Override
@@ -54,7 +54,7 @@ public class RequestContextTest extends TestCase {
 
     @Test
     public void testOnRemoveFromQuoue() throws Exception {
-        RequestContext requestContext = new RequestContext();
+        RequestContext requestContext = new RequestContext(null,null,null);
 
         requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
             @Override

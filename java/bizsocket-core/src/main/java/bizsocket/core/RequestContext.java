@@ -3,8 +3,8 @@ package bizsocket.core;
 import bizsocket.logger.Logger;
 import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
+import bizsocket.tcp.Request;
 import okio.ByteString;
-
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -45,35 +45,29 @@ public class RequestContext implements ResponseHandler {
 
     private final Logger logger = LoggerFactory.getLogger(RequestContext.class.getSimpleName());
 
+    private final Request request;
+    /**
+     * 请求包
+     */
+    private final Packet requestPacket;
+    /**
+     * callback
+     */
+    private final ResponseHandler responseHandler;
+
     /**
      * 状态机
      */
     private int flags = FLAG_REQUEST | FLAG_CHECK_CONNECT_STATUS;
-    /**
-     * 请求的tag
-     */
-    private Object tag;
-
-    /**
-     * 请求命令号
-     */
-    private int requestCommand;
-    /**
-     * 请求包
-     */
-    private Packet requestPacket;
-    /**
-     * callback
-     */
-    private ResponseHandler responseHandler;
-
     private OnRequestTimeoutListener onRequestTimeoutListener;
-
     private Timer timer;
-    private ByteString requestBody;
     private long readTimeout = Configuration.DEFAULT_READ_TIMEOUT;
-    private Packet lastSendPacket;
-    private Map attach;
+
+    public RequestContext(Request request, Packet requestPacket, ResponseHandler responseHandler) {
+        this.request = request;
+        this.requestPacket = requestPacket;
+        this.responseHandler = responseHandler;
+    }
 
     public int getFlags() {
         return flags;
@@ -84,35 +78,19 @@ public class RequestContext implements ResponseHandler {
     }
 
     public Object getTag() {
-        return tag;
-    }
-
-    public void setTag(Object tag) {
-        this.tag = tag;
+        return request.tag();
     }
 
     public Packet getRequestPacket() {
         return requestPacket;
     }
 
-    public void setRequestPacket(Packet requestPacket) {
-        this.requestPacket = requestPacket;
-    }
-
     public ResponseHandler getResponseHandler() {
         return responseHandler;
     }
 
-    public void setResponseHandler(ResponseHandler responseHandler) {
-        this.responseHandler = responseHandler;
-    }
-
     public int getRequestCommand() {
-        return requestCommand;
-    }
-
-    public void setRequestCommand(int requestCommand) {
-        this.requestCommand = requestCommand;
+        return request.command();
     }
 
     public void setOnRequestTimeoutListener(OnRequestTimeoutListener listener) {
@@ -122,15 +100,8 @@ public class RequestContext implements ResponseHandler {
     @Override
     public void sendSuccessMessage(int command, ByteString requestBody, Packet packet) {
         if (responseHandler != null) {
-            if (lastSendPacket != null
-                    && lastSendPacket.getContent() != null
-                    && lastSendPacket.getContent().equals(packet.getContent())) {
-                return;
-            }
-            responseHandler.sendSuccessMessage(command, this.requestBody, packet);
+            responseHandler.sendSuccessMessage(command, this.request.body(), packet);
         }
-
-        lastSendPacket = packet;
     }
 
     @Override
@@ -153,12 +124,8 @@ public class RequestContext implements ResponseHandler {
         },readTimeout * 1000);
     }
 
-    public void setRequestBody(ByteString requestBody) {
-        this.requestBody = requestBody;
-    }
-
     public ByteString getRequestBody() {
-        return requestBody;
+        return request.body();
     }
 
     public void setReadTimeout(long readTimeout) {
@@ -178,19 +145,11 @@ public class RequestContext implements ResponseHandler {
     }
 
     public Map getAttach() {
-        return attach;
+        return request.attach();
     }
 
-    public void setAttach(Map attach) {
-        this.attach = attach;
-    }
-
-    @Override
-    public String toString() {
-        return "RequestContext{" +
-                "requestPacket=" + requestPacket +
-                ", requestBody=" + requestBody +
-                '}';
+    public Request getRequest() {
+        return request;
     }
 
     public interface OnRequestTimeoutListener {
