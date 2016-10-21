@@ -56,6 +56,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         Packet packet = null;
         if (stickyCmds.contains(cmd) && (packet = packetMap.get(cmd)) != null) {
             //如果是粘性广播命令并且有缓存的包，立即回调一次
+            logger.debug("Sticky callback: " + packet);
             sendSuccessMessage(notifyContext,cmd,packet);
         }
     }

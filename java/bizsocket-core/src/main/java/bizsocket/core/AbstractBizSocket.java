@@ -150,6 +150,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
         this.configuration = configuration;
     }
 
+    public One2ManyNotifyRouter getOne2ManyNotifyRouter() {
+        return one2ManyNotifyRouter;
+    }
+
     protected RequestContext buildRequestContext(Request request, ResponseHandler responseHandler) {
         Packet requestPacket = getPacketFactory().getRequestPacket(request);
         String desc = request.description();

@@ -99,7 +99,6 @@ public abstract class Packet {
 
     public void onRecycle() {
         LOGGER.debug("packet recycled： " + toString());
-
     }
 
     /**
@@ -118,5 +117,14 @@ public abstract class Packet {
             packetPool.push(this);
         }
         onRecycle();
+    }
+
+    @Override
+    public String toString() {
+        return "Packet{" +
+                "command=" + command +
+                ", description='" + description + '\'' +
+                ", content" + getContent() +
+                '}';
     }
 }

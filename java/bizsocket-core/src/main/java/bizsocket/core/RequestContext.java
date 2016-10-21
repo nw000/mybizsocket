@@ -44,7 +44,7 @@ public class RequestContext implements ResponseHandler {
     /**
      * 请求包
      */
-    private final Packet requestPacket;
+    private Packet requestPacket;
     /**
      * callback
      */
@@ -145,6 +145,10 @@ public class RequestContext implements ResponseHandler {
 
     public Request getRequest() {
         return request;
+    }
+
+    public void setRequestPacket(Packet requestPacket) {
+        this.requestPacket = requestPacket;
     }
 
     public interface OnRequestTimeoutListener {

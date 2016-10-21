@@ -43,7 +43,11 @@ public abstract class PacketFactory {
 
 
     public final Packet getRequestPacket(Request request) {
-        return getRequestPacket(getPacketPool().pull(),request);
+        Packet packet = getRequestPacket(getPacketPool().pull(),request);
+        if (packet != null && request.recycleOnSend()) {
+            packet.setFlags(packet.getFlags() | Packet.FLAG_AUTO_RECYCLE_ON_SEND_SUCCESS);
+        }
+        return packet;
     }
 
     public final Packet getHeartBeatPacket() {

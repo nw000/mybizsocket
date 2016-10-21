@@ -13,6 +13,7 @@ public final class Request {
     private ByteString body;
     private Map attach;
     private String description;
+    private boolean recycleOnSend;//自动回收请求包
 
     public Object tag() {
         return tag;
@@ -32,6 +33,10 @@ public final class Request {
 
     public String description() {
         return description;
+    }
+
+    public boolean recycleOnSend() {
+        return recycleOnSend;
     }
 
     public Builder newBuilder() {
@@ -94,6 +99,11 @@ public final class Request {
 
         public Builder description(String description) {
             this.request.description = description;
+            return this;
+        }
+
+        public Builder recycleOnSend(boolean recycleOnSend) {
+            this.request.recycleOnSend = recycleOnSend;
             return this;
         }
 

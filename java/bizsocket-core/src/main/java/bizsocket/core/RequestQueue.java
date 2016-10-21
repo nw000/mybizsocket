@@ -1,5 +1,6 @@
 package bizsocket.core;
 
+import bizsocket.core.internal.RequestContextQueue;
 import bizsocket.logger.Logger;
 import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.ConnectionListener;
@@ -281,7 +282,6 @@ public class RequestQueue implements PacketListener,ConnectionListener {
      * 执行队列中的所有请求
      */
     public void executeAllRequestContext() {
-        //Logger.d("执行队列中的所有请求");
         Collection<RequestContext> prepareExecuteList = getRequestContext(new Filter() {
             @Override
             public boolean filter(RequestContext context) {

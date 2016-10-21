@@ -1,12 +1,13 @@
-package bizsocket.core;
+package bizsocket.core.internal;
 
+import bizsocket.core.RequestContext;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by tong on 16/10/5.
  */
-class RequestContextQueue extends CopyOnWriteArrayList<RequestContext> {
+public class RequestContextQueue extends CopyOnWriteArrayList<RequestContext> {
     @Override
     public boolean remove(Object o) {
         if (o != null) {
