@@ -1,6 +1,7 @@
 package bizsocket.core.cache;
 
 import bizsocket.core.PacketValidator;
+import bizsocket.core.RequestContext;
 import bizsocket.tcp.Packet;
 
 /**
@@ -17,12 +18,13 @@ public class UseUtilSendCmdCacheStrategy extends UseUtilReceiveCmdCacheStrategy 
     }
 
     @Override
-    public void onSendSuccessful(Packet packet) {
-        processTriggerPacket(packet);
+    public boolean postRequestHandle(RequestContext context) throws Exception {
+        processTriggerPacket(context.getRequestPacket());
+        return false;
     }
 
     @Override
-    public void processPacket(Packet packet) {
-
+    public boolean postResponseHandle(int command, Packet responsePacket) throws Exception {
+        return false;
     }
 }

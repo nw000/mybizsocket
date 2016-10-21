@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CacheManager implements Interceptor {
     private final Logger logger = LoggerFactory.getLogger(CacheManager.class.getSimpleName());
-    private final Map<Integer,CacheStrategy> cacheEntryMap = new ConcurrentHashMap<Integer, CacheStrategy>();
+    private final Map<Integer,CacheStrategy> cacheStrategyMap = new ConcurrentHashMap<Integer, CacheStrategy>();
     private final AbstractBizSocket bizSocket;
 
     public CacheManager(AbstractBizSocket bizSocket) {
@@ -28,7 +28,7 @@ public class CacheManager implements Interceptor {
      * @return
      */
     public CacheStrategy get(int cmd) {
-        return cacheEntryMap.get(cmd);
+        return cacheStrategyMap.get(cmd);
     }
 
     /**
@@ -38,7 +38,7 @@ public class CacheManager implements Interceptor {
     public void add(CacheStrategy entry) {
         if (entry != null) {
             entry.onMount(this);
-            cacheEntryMap.put(entry.getCommand(),entry);
+            cacheStrategyMap.put(entry.getCommand(),entry);
         }
     }
 
@@ -57,14 +57,14 @@ public class CacheManager implements Interceptor {
      * 通过命令号移除缓存策略
      */
     public void remove(int cmd) {
-        cacheEntryMap.remove(cmd);
+        cacheStrategyMap.remove(cmd);
     }
 
     /**
      * 移除所有的缓存策略
      */
     public void removeAll() {
-        cacheEntryMap.clear();
+        cacheStrategyMap.clear();
     }
 
     /**
@@ -74,6 +74,15 @@ public class CacheManager implements Interceptor {
     public void removeCache(int cmd) {
         CacheStrategy cacheStrategy = get(cmd);
         if (cacheStrategy != null) {
+            cacheStrategy.removeCache();
+        }
+    }
+
+    /**
+     * 移除所有缓存
+     */
+    public void removeAllCache() {
+        for (CacheStrategy cacheStrategy : cacheStrategyMap.values()) {
             cacheStrategy.removeCache();
         }
     }
@@ -98,6 +107,10 @@ public class CacheManager implements Interceptor {
 
     @Override
     public boolean postResponseHandle(int command, Packet responsePacket) throws Exception {
+        CacheStrategy cacheStrategy = get(responsePacket.getCommand());
+        if (cacheStrategy != null) {
+            cacheStrategy.updateCache(responsePacket);
+        }
         return false;
     }
 }

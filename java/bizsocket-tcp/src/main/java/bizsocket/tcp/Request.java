@@ -57,6 +57,15 @@ public final class Request {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return "Request{" +
+                "command=" + command +
+                ", body=" + body +
+                ", description='" + description + '\'' +
+                '}';
+    }
+
     public static class Builder {
         private final Request request;
 

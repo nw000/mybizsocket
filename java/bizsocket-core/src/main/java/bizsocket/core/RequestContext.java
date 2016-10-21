@@ -151,6 +151,14 @@ public class RequestContext implements ResponseHandler {
         this.requestPacket = requestPacket;
     }
 
+    @Override
+    public String toString() {
+        return "RequestContext{" +
+                "request=" + request +
+                ", responseHandler=" + responseHandler +
+                '}';
+    }
+
     public interface OnRequestTimeoutListener {
         void onRequestTimeout(RequestContext context);
     }

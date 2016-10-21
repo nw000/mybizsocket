@@ -1,14 +1,15 @@
 package bizsocket.core.cache;
 
+import bizsocket.core.Interceptor;
 import bizsocket.core.PacketValidator;
+import bizsocket.core.RequestContext;
 import bizsocket.tcp.Packet;
-import bizsocket.tcp.PacketListener;
 
 /**
  * 接收指定的的命令后移除缓存
  * Created by tong on 16/10/21.
  */
-public class UseUtilReceiveCmdCacheStrategy extends CacheStrategy implements PacketListener {
+public class UseUtilReceiveCmdCacheStrategy extends CacheStrategy implements Interceptor {
 
     private int[] conflictCommands;
     private PacketValidator triggerPacketValidator;
@@ -33,24 +34,14 @@ public class UseUtilReceiveCmdCacheStrategy extends CacheStrategy implements Pac
     public void onMount(CacheManager cacheManager) {
         super.onMount(cacheManager);
 
-        cacheManager.getBizSocket().getSocketConnection().addPacketListener(this);
+        cacheManager.getBizSocket().getInterceptorChain().addInterceptor(this);
     }
 
     @Override
     public void onUnmount(CacheManager cacheManager) {
         super.onUnmount(cacheManager);
 
-        cacheManager.getBizSocket().getSocketConnection().removePacketListener(this);
-    }
-
-    @Override
-    public void onSendSuccessful(Packet packet) {
-
-    }
-
-    @Override
-    public void processPacket(Packet packet) {
-        processTriggerPacket(packet);
+        cacheManager.getBizSocket().getInterceptorChain().removeInterceptor(this);
     }
 
     public void processTriggerPacket(Packet packet) {
@@ -77,5 +68,16 @@ public class UseUtilReceiveCmdCacheStrategy extends CacheStrategy implements Pac
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean postRequestHandle(RequestContext context) throws Exception {
+        return false;
+    }
+
+    @Override
+    public boolean postResponseHandle(int command, Packet responsePacket) throws Exception {
+        processTriggerPacket(responsePacket);
+        return false;
     }
 }
