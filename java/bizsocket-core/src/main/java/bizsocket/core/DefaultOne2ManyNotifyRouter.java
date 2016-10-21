@@ -3,9 +3,8 @@ package bizsocket.core;
 import bizsocket.logger.Logger;
 import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -15,13 +14,50 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
     private final Logger logger = LoggerFactory.getLogger(DefaultOne2ManyNotifyRouter.class.getSimpleName());
 
     private final Collection<NotifyContext> notifyContexts = new CopyOnWriteArrayList<NotifyContext>();
+    private final Map<Integer,Packet> packetMap = new ConcurrentHashMap<>();
+    private final Set<StickyContext> stickyCmds = Collections.synchronizedSet(new HashSet<StickyContext>());
+
+    /**
+     * 添加对粘性通知的支持
+     * @param cmd
+     */
+    @Override
+    public void addStickyCmd(int cmd,PacketValidator triggerPacketValidator) {
+        stickyCmds.add(new StickyContext(cmd, triggerPacketValidator));
+    }
+
+    /**
+     * 移除粘性广播命令
+     * @param command
+     */
+    @Override
+    public void removeStickyCmd(int command) {
+        StickyContext stickyContext = null;
+        for (StickyContext context : stickyCmds) {
+            if (context.cmd == command) {
+                stickyContext = context;
+                break;
+            }
+        }
+        if (stickyContext != null) {
+            stickyCmds.remove(stickyContext);
+            packetMap.remove(command);
+        }
+    }
 
     @Override
-    public void subscribe(Object tag, int cmd, int flags, ResponseHandler responseHandler) {
+    public void subscribe(Object tag, int cmd, ResponseHandler responseHandler) {
         if (tag == null || responseHandler == null) {
             return;
         }
-        notifyContexts.add(new NotifyContext(tag,cmd,flags,responseHandler));
+        NotifyContext notifyContext = new NotifyContext(tag,cmd,responseHandler);
+        notifyContexts.add(notifyContext);
+
+        Packet packet = null;
+        if (stickyCmds.contains(cmd) && (packet = packetMap.get(cmd)) != null) {
+            //如果是粘性广播命令并且有缓存的包，立即回调一次
+            sendSuccessMessage(notifyContext,cmd,packet);
+        }
     }
 
     @Override
@@ -45,22 +81,24 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
             logger.error("can not route command: " + command + " packet: " + packet);
             return;
         }
-        List<NotifyContext> preDelList = null;
         for (NotifyContext notifyContext : notifyContexts) {
             if (notifyContext.cmd == command) {
                 sendSuccessMessage(notifyContext,command,packet);
-
-                if ((notifyContext.flags & One2ManyNotifyRouter.FLAG_ONCE_CALL) != 0) {
-                    if (preDelList == null) {
-                        preDelList = new ArrayList<NotifyContext>();
-                    }
-                    preDelList.add(notifyContext);
-                }
             }
         }
 
-        if (preDelList != null && !preDelList.isEmpty()) {
-            notifyContexts.removeAll(preDelList);
+        StickyContext stickyContext = null;
+        for (StickyContext context : stickyCmds) {
+            if (context.cmd == command) {
+                stickyContext = context;
+                break;
+            }
+        }
+        if (stickyContext != null
+                && stickyContext.triggerPacketValidator != null
+                && stickyContext.triggerPacketValidator.verify(packet)) {
+            packet.setFlags(packet.getFlags() | Packet.FLAG_RECYCLABLE);
+            packetMap.put(packet.getCommand(),packet);
         }
     }
 
@@ -68,14 +106,42 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         notifyContext.sendSuccessMessage(command, packet);
     }
 
-    public static class NotifyContext {
-        int flags;
+    private static class StickyContext {
+        int cmd;
+        PacketValidator triggerPacketValidator;
+
+        public StickyContext(int cmd, PacketValidator triggerPacketValidator) {
+            this.cmd = cmd;
+            this.triggerPacketValidator = triggerPacketValidator;
+
+            if (this.triggerPacketValidator == null) {
+                throw new IllegalArgumentException("triggerPacketValidator can not be null");
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            StickyContext that = (StickyContext) o;
+
+            return cmd == that.cmd;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return cmd;
+        }
+    }
+
+    private static class NotifyContext {
         int cmd;
         Object tag;
         ResponseHandler responseHandler;
 
-        public NotifyContext(Object tag,int cmd,int flags,ResponseHandler responseHandler) {
-            this.flags = flags;
+        public NotifyContext(Object tag,int cmd,ResponseHandler responseHandler) {
             this.cmd = cmd;
             this.tag = tag;
             this.responseHandler = responseHandler;

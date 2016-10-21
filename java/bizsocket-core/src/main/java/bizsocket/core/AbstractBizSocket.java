@@ -80,7 +80,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
     @Override
     public void subscribe(Object tag, int cmd, ResponseHandler responseHandler) {
-        one2ManyNotifyRouter.subscribe(tag,cmd, One2ManyNotifyRouter.FLAG_DEFAULT,responseHandler);
+        one2ManyNotifyRouter.subscribe(tag,cmd,responseHandler);
     }
 
     @Override

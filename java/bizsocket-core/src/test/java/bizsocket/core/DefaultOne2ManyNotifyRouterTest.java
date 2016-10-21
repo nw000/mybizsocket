@@ -1,11 +1,9 @@
 package bizsocket.core;
 
-import bizsocket.core.DefaultOne2ManyNotifyRouter;
-import bizsocket.core.One2ManyNotifyRouter;
-import bizsocket.core.ResponseHandler;
 import bizsocket.tcp.Packet;
 import common.WPBCmd;
 import common.WPBPacket;
+import common.WPBProtocolUtil;
 import junit.framework.TestCase;
 import okio.ByteString;
 import org.junit.Test;
@@ -16,6 +14,13 @@ import org.junit.Test;
 public class DefaultOne2ManyNotifyRouterTest extends TestCase {
     private One2ManyNotifyRouter router;
     WPBPacket receivePacket = null;
+
+    private PacketValidator packetValidator = new PacketValidator() {
+        @Override
+        public boolean verify(Packet packet) {
+            return WPBProtocolUtil.isSuccessResponsePacket((WPBPacket) packet);
+        }
+    };
 
     public DefaultOne2ManyNotifyRouterTest() {
         router = new DefaultOne2ManyNotifyRouter();
@@ -29,8 +34,33 @@ public class DefaultOne2ManyNotifyRouterTest extends TestCase {
     }
 
     @Test
+    public void testAddStickyCmd() throws Exception {
+        router.addStickyCmd(WPBCmd.NOTIFY_PRICE.getValue(),packetValidator);
+        WPBPacket packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{}"));
+        router.route(WPBCmd.NOTIFY_PRICE.getValue(),packet);
+
+        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), new ResponseHandler() {
+            @Override
+            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
+                receivePacket = (WPBPacket) responsePacket;
+            }
+
+            @Override
+            public void sendFailureMessage(int command, Throwable error) {
+
+            }
+        });
+
+        assertNull(receivePacket);
+
+        packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{\"code\" : 200}"));
+        router.route(WPBCmd.NOTIFY_PRICE.getValue(),packet);
+        assertNotNull(receivePacket);
+    }
+
+    @Test
     public void testRouteFLAG_DEFAULT() throws Exception{
-        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), One2ManyNotifyRouter.FLAG_DEFAULT, new ResponseHandler() {
+        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), new ResponseHandler() {
             @Override
             public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
                 receivePacket = (WPBPacket) responsePacket;
@@ -52,35 +82,6 @@ public class DefaultOne2ManyNotifyRouterTest extends TestCase {
     }
 
     @Test
-    public void testRouteFLAG_ONCE_CALL() throws Exception{
-        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), One2ManyNotifyRouter.FLAG_ONCE_CALL, new ResponseHandler() {
-            @Override
-            public void sendSuccessMessage(int command, ByteString requestBody, Packet responsePacket) {
-                receivePacket = (WPBPacket) responsePacket;
-            }
-
-            @Override
-            public void sendFailureMessage(int command, Throwable error) {
-
-            }
-        });
-
-        WPBPacket packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{}"));
-
-        for (int i = 0; i < 5; i++) {
-            receivePacket = null;
-            router.route(WPBCmd.NOTIFY_PRICE.getValue(),packet);
-
-            if (i == 0) {
-                assertEquals(packet,receivePacket);
-            }
-            else {
-                assertNull(receivePacket);
-            }
-        }
-    }
-
-    @Test
     public void testUnSubscribe() throws Exception{
         ResponseHandler responseHandler = new ResponseHandler() {
             @Override
@@ -93,7 +94,7 @@ public class DefaultOne2ManyNotifyRouterTest extends TestCase {
 
             }
         };
-        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), One2ManyNotifyRouter.FLAG_DEFAULT, responseHandler);
+        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), responseHandler);
 
         WPBPacket packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{}"));
 
@@ -126,7 +127,7 @@ public class DefaultOne2ManyNotifyRouterTest extends TestCase {
 
             }
         };
-        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), One2ManyNotifyRouter.FLAG_DEFAULT, responseHandler);
+        router.subscribe(this, WPBCmd.NOTIFY_PRICE.getValue(), responseHandler);
 
         WPBPacket packet = new WPBPacket(WPBCmd.NOTIFY_PRICE.getValue(),ByteString.encodeUtf8("{}"));
 
