@@ -32,6 +32,7 @@ public class WPBClientForMockServer extends SocketConnection {
                 System.out.println("rec: " + packet);
             }
         });
+
         client.connectAndStartWatch();
         client.startHeartBeat();
 

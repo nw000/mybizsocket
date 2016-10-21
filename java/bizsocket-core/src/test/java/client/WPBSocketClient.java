@@ -13,8 +13,8 @@ import java.io.IOException;
 /**
  * Created by tong on 16/10/3.
  */
-public class WPBClientForMockServer extends AbstractBizSocket {
-    public WPBClientForMockServer(Configuration configuration) {
+public class WPBSocketClient extends AbstractBizSocket {
+    public WPBSocketClient(Configuration configuration) {
         super(configuration);
     }
 
@@ -24,7 +24,7 @@ public class WPBClientForMockServer extends AbstractBizSocket {
     }
 
     public static void main(String[] args) {
-        WPBClientForMockServer client = new WPBClientForMockServer(new Configuration.Builder()
+        WPBSocketClient client = new WPBSocketClient(new Configuration.Builder()
                 .host("127.0.0.1")
                 .port(9103)
                 .build());

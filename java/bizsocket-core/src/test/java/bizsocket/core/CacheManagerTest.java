@@ -1,8 +1,10 @@
 package bizsocket.core;
 
+import bizsocket.core.cache.*;
 import bizsocket.tcp.Request;
 import client.WPBPacketFactory;
 import bizsocket.tcp.Packet;
+import client.WPBSocketClient;
 import common.WPBBizPacketValidator;
 import junit.framework.TestCase;
 import org.json.JSONObject;
@@ -21,7 +23,7 @@ public class CacheManagerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        cacheManager = new CacheManager();
+        cacheManager = new CacheManager(new WPBSocketClient(new Configuration()));
         validator = new WPBBizPacketValidator();
         System.out.println("setUp");
     }
@@ -31,280 +33,162 @@ public class CacheManagerTest extends TestCase {
         System.out.println("testPersistenceCacheEntry");
 
         int command = 1;
+        CacheStrategy cacheStrategy = new CacheStrategy(command, validator);
         assertNull(cacheManager.get(command));
-        cacheManager.put(CacheEntry.createPersistence(command, validator));
-        assertNull(cacheManager.get(command));
+        cacheManager.add(cacheStrategy);
+        assertNotNull(cacheManager.get(command));
 
         Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(22).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull(cacheManager.get(command));
+        try {
+            cacheStrategy.updateCache(packet);
+            fail("入口的command与被缓存的包命令号不一致");
+        } catch (IllegalArgumentException e) {
 
-        JSONObject response = new JSONObject();
-        response.put("code",200);
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        for (int i = 0; i < 15; i++) {
-            assertNotNull(cacheManager.get(command));
         }
-    }
 
-    @Test
-    public void testRelativeMillisCacheEntryTYPE_EXPIRED_NOT_USE() throws Exception {
-        System.out.println("testRelativeMillisCacheEntryTYPE_EXPIRED_NOT_USE");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createRelativeMillis(command, CacheEntry.TYPE_EXPIRED_NOT_USE, TimeUnit.SECONDS, 3,validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(22).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull(cacheManager.get(command));
+        assertNull(cacheStrategy.getValidCache());
 
         JSONObject response = new JSONObject();
-        response.put("code",200);
+        response.put("code",-1);
         packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
+        cacheStrategy.updateCache(packet);
+        assertNull(cacheStrategy.getValidCache());
 
-        assertNotNull(cacheManager.get(command));
+        cacheStrategy.setValidator(null);
 
-        Thread.sleep(3500);
-
-        assertNull(cacheManager.get(command));
-
+        response = new JSONObject();
+        response.put("code",-1);
         packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNotNull(cacheManager.get(command));
+        cacheStrategy.updateCache(packet);
+        assertNotNull(cacheStrategy.getValidCache());
     }
 
     @Test
-    public void testRelativeMillisCacheEntryTYPE_EXPIRED_USE_AND_REFRESH() throws Exception {
-        System.out.println("testRelativeMillisCacheEntryTYPE_EXPIRED_USE_AND_REFRESH");
+    public void testCounterCacheStrategy() throws Exception {
+        System.out.println("testRelativeMillisCacheEntry");
 
+        final int ecount = 10;
         int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createRelativeMillis(command, CacheEntry.TYPE_EXPIRED_USE_AND_REFRESH, TimeUnit.SECONDS, 3,validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(22).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull(cacheManager.get(command));
-
-        JSONObject response = new JSONObject();
-        response.put("code",200);
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
-
-        Thread.sleep(3500);
-
-        CacheEntry res = cacheManager.get(command);
-
-        assertNotNull(res);
-        assertEquals(res.isExpired(),true);
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
-    }
-
-    @Test
-    public void testCounterCacheEntryTYPE_EXPIRED_NOT_USE() throws Exception {
-        System.out.println("testCounterCacheEntryTYPE_EXPIRED_NOT_USE");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createCounter(command, CacheEntry.TYPE_EXPIRED_NOT_USE, 10,validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(22).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull(cacheManager.get(command));
-
-        JSONObject response = new JSONObject();
-        response.put("code",200);
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        for (int i = 0; i < 9; i++) {
-            CacheEntry entry = cacheManager.get(command);
-            assertNotNull(entry);
-            assertNotNull(entry.getEntry());
-            assertEquals(entry.isExpired(),false);
-        }
-        assertNull(cacheManager.get(command));
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        for (int i = 0; i < 9; i++) {
-            CacheEntry entry = cacheManager.get(command);
-            assertNotNull(entry);
-            assertNotNull(entry.getEntry());
-            assertEquals(entry.isExpired(),false);
-        }
-        assertNull(cacheManager.get(command));
-    }
-
-    @Test
-    public void testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH() throws Exception {
-        System.out.println("testCounterCacheEntryTYPE_EXPIRED_USE_AND_REFRESH");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createCounter(command, CacheEntry.TYPE_EXPIRED_USE_AND_REFRESH, 10,validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(22).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull(cacheManager.get(command));
-
-        JSONObject response = new JSONObject();
-        response.put("code",200);
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        for (int i = 0; i < 9; i++) {
-            CacheEntry entry = cacheManager.get(command);
-            assertNotNull(entry);
-            assertNotNull(entry.getEntry());
-            assertEquals(entry.isExpired(),false);
-        }
-        CacheEntry cacheEntry1 = cacheManager.get(command);
-        assertNotNull(cacheEntry1);
-        assertEquals(cacheEntry1.isExpired(), true);
-
-        cacheEntry1 = cacheManager.get(command);
-        assertNotNull(cacheEntry1);
-        assertEquals(cacheEntry1.isExpired(),true);
-
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        for (int i = 0; i < 9; i++) {
-            CacheEntry entry = cacheManager.get(command);
-            assertNotNull(entry);
-            assertNotNull(entry.getEntry());
-            assertEquals(entry.isExpired(),false);
-        }
-        cacheEntry1 = cacheManager.get(command);
-        assertNotNull(cacheEntry1);
-        assertEquals(cacheEntry1.isExpired(), true);
-    }
-
-    @Test
-    public void testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE() throws Exception {
-        System.out.println("testUseUtilSendCmdCacheEntryTYPE_EXPIRED_NOT_USE");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createUseUtilSendCmd(command, CacheEntry.TYPE_EXPIRED_NOT_USE, new int[]{2, 3, 4},null);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(2).utf8body(new JSONObject().toString()).build());
-        cacheManager.onSendPacket(packet);
-
-        assertNull(cacheManager.get(command));
-    }
-
-    @Test
-    public void testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH() throws Exception {
-        System.out.println("testUseUtilSendCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createUseUtilSendCmd(command, CacheEntry.TYPE_EXPIRED_USE_AND_REFRESH, new int[]{2, 3, 4},null);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(2).utf8body(new JSONObject().toString()).build());
-        cacheManager.onSendPacket(packet);
-
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(),true);
-    }
-
-    @Test
-    public void testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_NOT_USE() throws Exception {
-        System.out.println("testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_NOT_USE");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createUseUtilReceiveCmd(command, CacheEntry.TYPE_EXPIRED_NOT_USE, new int[]{2, 3, 4},validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
-
-        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-        assertNull("包校验逻辑出错",cacheManager.get(command));
-
-        JSONObject response = new JSONObject();
-        response.put("code",200);
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
-
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(2).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
-
-        assertNull(cacheManager.get(command));
-    }
-
-    @Test
-    public void testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH() throws Exception {
-        System.out.println("testUseUtilReceiveCmdCacheEntryTYPE_EXPIRED_USE_AND_REFRESH");
-
-        int command = 1;
-        assertNull(cacheManager.get(command));
-
-        CacheEntry cacheEntry =  CacheEntry.createUseUtilReceiveCmd(command, CacheEntry.TYPE_EXPIRED_USE_AND_REFRESH, new int[]{2, 3, 4},validator);
-        cacheManager.put(cacheEntry);
-        assertNull(cacheManager.get(command));
+        CounterCacheStrategy cacheStrategy = new CounterCacheStrategy(command, ecount,validator);
+        cacheManager.add(cacheStrategy);
 
         JSONObject response = new JSONObject();
         response.put("code",200);
         Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
-        cacheManager.onReceivePacket(packet);
 
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(), false);
 
-        packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(2).utf8body(new JSONObject().toString()).build());
-        cacheManager.onReceivePacket(packet);
+        for (int j = 0; j < 2; j++) {
+            cacheStrategy.updateCache(packet);
 
-        assertNotNull(cacheManager.get(command));
-        assertEquals(cacheManager.get(command).isExpired(),true);
+            for (int i = 0; i <= ecount; i++) {
+                if (i < ecount) {
+                    assertNotNull(cacheStrategy.getValidCache());
+                }
+                else {
+                    assertNull(cacheStrategy.getValidCache());
+                }
+                cacheStrategy.onHit();
+
+                System.out.println("expiresCount: " + cacheStrategy.getExpiresCount() + " current: " + cacheStrategy.getCount());
+            }
+        }
+    }
+
+    @Test
+    public void testRelativeMillisCacheStrategy() throws Exception {
+        System.out.println("testRelativeMillisCacheStrategy");
+
+        int command = 1;
+        CacheStrategy cacheStrategy = new RelativeMillisCacheStrategy(command, TimeUnit.SECONDS, 2,validator);
+        cacheManager.add(cacheStrategy);
+
+        JSONObject response = new JSONObject();
+        response.put("code",200);
+        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
+        cacheStrategy.updateCache(packet);
+        assertNotNull(cacheStrategy.getValidCache());
+        Thread.sleep(2500);
+        assertNull(cacheStrategy.getValidCache());
+    }
+
+    @Test
+    public void testUseUtilSendCmdCacheStrategy() throws Exception {
+        System.out.println("testUseUtilSendCmdCacheStrategy");
+
+        int command = 1;
+        int[] conflictCommands = new int[]{2,3,4};
+        UseUtilSendCmdCacheStrategy cacheStrategy = new UseUtilSendCmdCacheStrategy(command, conflictCommands,validator);
+        cacheManager.add(cacheStrategy);
+
+        for (int conflictCmd : conflictCommands) {
+            JSONObject response = new JSONObject();
+            response.put("code",200);
+            Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
+            cacheStrategy.updateCache(packet);
+            assertNotNull(cacheStrategy.getValidCache());
+
+            packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(conflictCmd).utf8body(response.toString()).build());
+            cacheStrategy.processTriggerPacket(packet);
+            assertNull(cacheStrategy.getValidCache());
+        }
+
+        PacketValidator packetValidator = new PacketValidator() {
+            @Override
+            public boolean verify(Packet packet) {
+                return false;
+            }
+        };
+        cacheStrategy.setTriggerPacketValidator(packetValidator);
+        for (int conflictCmd : conflictCommands) {
+            JSONObject response = new JSONObject();
+            response.put("code",200);
+            Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
+            cacheStrategy.updateCache(packet);
+            assertNotNull(cacheStrategy.getValidCache());
+
+            packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(conflictCmd).utf8body(response.toString()).build());
+            cacheStrategy.processTriggerPacket(packet);
+            assertNotNull(cacheStrategy.getValidCache());
+        }
+    }
+
+    @Test
+    public void testUseUtilReceiveCmdCacheStrategy() throws Exception {
+        System.out.println("testUseUtilReceiveCmdCacheStrategy");
+
+        int command = 1;
+        int[] conflictCommands = new int[]{2,3,4};
+        UseUtilReceiveCmdCacheStrategy cacheStrategy = new UseUtilReceiveCmdCacheStrategy(command, conflictCommands,validator);
+        cacheManager.add(cacheStrategy);
+
+        JSONObject response = new JSONObject();
+        response.put("code",200);
+        Packet packet = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(command).utf8body(response.toString()).build());
+
+        for (int conflictCmd : conflictCommands) {
+            cacheStrategy.updateCache(packet);
+            assertNotNull(cacheStrategy.getValidCache());
+
+            Packet triggerPacket = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(conflictCmd).utf8body(response.toString()).build());
+            cacheStrategy.processTriggerPacket(triggerPacket);
+            assertNull(cacheStrategy.getValidCache());
+        }
+
+        cacheStrategy.setTriggerPacketValidator(validator);
+        for (int conflictCmd : conflictCommands) {
+            response.put("code",200);
+            cacheStrategy.updateCache(packet);
+            assertNotNull(cacheStrategy.getValidCache());
+
+            response.put("code",-1);
+            Packet triggerPacket = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(conflictCmd).utf8body(response.toString()).build());
+            cacheStrategy.processTriggerPacket(triggerPacket);
+            assertNotNull(cacheStrategy.getValidCache());
+
+            response.put("code",200);
+            triggerPacket = new WPBPacketFactory().getRequestPacket(new Request.Builder().command(conflictCmd).utf8body(response.toString()).build());
+            cacheStrategy.processTriggerPacket(triggerPacket);
+            assertNull(cacheStrategy.getValidCache());
+        }
     }
 }

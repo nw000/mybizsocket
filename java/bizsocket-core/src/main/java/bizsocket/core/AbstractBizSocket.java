@@ -1,5 +1,6 @@
 package bizsocket.core;
 
+import bizsocket.core.cache.CacheManager;
 import bizsocket.tcp.*;
 import okio.ByteString;
 
@@ -36,7 +37,6 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
             }
         });
         cacheManager = createCacheManager();
-        getInterceptorChain().addInterceptor(new CacheInterceptor(cacheManager));
     }
 
     @Override
@@ -111,7 +111,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     }
 
     public CacheManager createCacheManager() {
-        return new CacheManager();
+        return new CacheManager(this);
     }
 
     public Configuration getConfiguration() {
