@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #built application files
 *.apk
 *.ap_
@@ -47,3 +48,17 @@ local.properties
 common/
 outputs
 tmp_file.tmp
+=======
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+>>>>>>> 3e7eac1f0abc3eea5c5dfd4029d2a565cd0ac9d3
