@@ -21,10 +21,10 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
     }
 
     public AbstractBizSocket(Configuration configuration) {
-        this.configuration = configuration;
-        socketConnection = createSocketConnection(createPacketFactory());
-        one2ManyNotifyRouter = createMultiNotifyRouter();
-        requestQueue = createRequestQueue(this);
+        this.configuration = configuration;                              //配置信息
+        socketConnection = createSocketConnection(createPacketFactory());//socket连接
+        one2ManyNotifyRouter = createMultiNotifyRouter();//粘性通知,订阅路由
+        requestQueue = createRequestQueue(this);    //请求队列
         requestQueue.setGlobalNotifyHandler(new ResponseHandler() {
             @Override
             public void sendSuccessMessage(int command, ByteString requestBody, Packet packet) {
@@ -36,7 +36,7 @@ public abstract class AbstractBizSocket implements Connection,BizSocket {
 
             }
         });
-        cacheManager = createCacheManager();
+        cacheManager = createCacheManager(); //创建缓存管理
     }
 
     @Override

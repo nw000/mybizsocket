@@ -7,6 +7,7 @@ import bizsocket.tcp.ConnectionListener;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketListener;
 import bizsocket.tcp.SocketConnection;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by tong on 16/3/7.
  */
-public class RequestQueue implements PacketListener,ConnectionListener {
+public class RequestQueue implements PacketListener, ConnectionListener {
     protected final Logger logger = LoggerFactory.getLogger(SocketConnection.class.getSimpleName());
     private final List<RequestContext> requestContextList = new RequestContextQueue();
     private final Set<SerialSignal> serialSignalList = Collections.synchronizedSet(new HashSet<SerialSignal>());
@@ -35,12 +36,15 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         if (context == null) {
             return;
         }
+        //添加一个请求上下文之前的一些准备 监听准备
         prepareContext(context);
         boolean existed = requestContextList.contains(context);
         if (!existed) {
+            //是否是清空队列的请求
             if ((context.getFlags() & RequestContext.FLAG_CLEAR_QUOTE) != 0) {
                 removeRequestContexts(requestContextList);
             }
+            // 是否是同一请求不能重复出现在队列中
             if ((context.getFlags() & RequestContext.FLAG_NOT_SUPPORT_REPEAT) != 0) {
                 Collection contexts = getRequestContext(new Filter() {
                     @Override
@@ -55,9 +59,8 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                 }
             }
             if ((context.getFlags() & RequestContext.FLAG_JUMP_QUOTE) != 0) {
-                requestContextList.add(0,context);
-            }
-            else {
+                requestContextList.add(0, context);
+            } else {
                 requestContextList.add(context);
             }
             InterceptorChain chain = getInterceptorChain();
@@ -66,22 +69,27 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                 RequestInterceptedException exception = new RequestInterceptedException("请求被拦截");
                 context.sendFailureMessage(context.getRequestCommand(), exception);
                 removeRequestContext(context);
-            }
-            else {
+            } else {
                 dealSerialSignal(context);
                 sendRequest(context);
             }
         }
     }
 
-    private void dealSerialSignal(RequestContext context) {
-        SerialSignal serialSignal = getSerialSignal(context.getRequestCommand());
+    private void dealSerialSignal(final RequestContext context) {
+        //SerialSignal serialSignal = getSerialSignal(context.getRequestCommand());
+        SerialSignal serialSignal = getSerialSignal(new SerialFilter() {
+            @Override
+            public boolean serialFilter(Integer integer) {
+                return context.getRequestCommand() == integer;
+            }
+        });
         //判断是否是串行入口命令
         if (serialSignal != null) {
             AbstractSerialContext serialContext = getSerialContext(context);
             if (serialContext == null) {
                 try {
-                    serialContext = buildSerialContext(serialSignal,context);
+                    serialContext = buildSerialContext(serialSignal, context);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -93,12 +101,12 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             }
             return;
         }
-
         removeExpiredSerialContexts();
     }
 
     /**
      * 加入队列前准备上下文
+     *
      * @param requestContext
      */
     private void prepareContext(final RequestContext requestContext) {
@@ -121,7 +129,9 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     }
 
     public void removeRequestContext(final RequestContext context) {
-        removeRequestContexts(new ArrayList<RequestContext>(){{add(context);}});
+        removeRequestContexts(new ArrayList<RequestContext>() {{
+            add(context);
+        }});
     }
 
     public void removeRequestContexts(Collection<RequestContext> requestContexts) {
@@ -140,7 +150,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
             throw new RuntimeException("filter can not be null");
         }
         List<RequestContext> resultList = new ArrayList<RequestContext>();
-        for (int i = 0;i < requestContextList.size();i++) {
+        for (int i = 0; i < requestContextList.size(); i++) {
             RequestContext context = requestContextList.get(i);
             if (filter.filter(context)) {
                 resultList.add(context);
@@ -162,8 +172,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
                     removeRequestContext(context);
                 }
             }
-        }
-        else {
+        } else {
             //等待连接成功后发送
             logger.debug("connect closed ,wait ... ");
         }
@@ -200,7 +209,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
     //创建串行context
     public AbstractSerialContext buildSerialContext(SerialSignal serialSignal, RequestContext context) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<? extends AbstractSerialContext> serialContexType = serialSignal.getSerialContextType();
-        AbstractSerialContext serialContex = serialContexType.getConstructor(SerialSignal.class,RequestContext.class).newInstance(serialSignal,context);
+        AbstractSerialContext serialContex = serialContexType.getConstructor(SerialSignal.class, RequestContext.class).newInstance(serialSignal, context);
         return serialContex;
     }
 
@@ -235,11 +244,22 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         return null;
     }
 
+    private SerialSignal getSerialSignal(SerialFilter serialFilter) {
+        if (serialFilter != null) {
+            for (SerialSignal signal : serialSignalList) {
+                if (serialFilter.serialFilter(signal.getEntranceCommand())) {
+                    return signal;
+                }
+            }
+        }
+        return null;
+    }
+
     //获取串行上下文
     private AbstractSerialContext getSerialContext(Packet responsePacket) {
         for (int i = 0; i < mSerialContexts.size(); i++) {
             AbstractSerialContext serialContext = mSerialContexts.get(i);
-            if (serialContext != null && serialContext.shouldProcess(this,responsePacket)) {
+            if (serialContext != null && serialContext.shouldProcess(this, responsePacket)) {
                 return serialContext;
             }
         }
@@ -252,6 +272,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
 
     /**
      * 分发数据包
+     *
      * @param responsePacket
      */
     public void dispatchPacket(final Packet responsePacket) {
@@ -267,12 +288,12 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         });
 
         for (RequestContext context : relativeContexts) {
-            context.sendSuccessMessage(command,null,responsePacket);
+            context.sendSuccessMessage(command, null, responsePacket);
         }
         removeRequestContexts(relativeContexts);
 
         if (globalNotifyHandler != null) {
-            globalNotifyHandler.sendSuccessMessage(command,null,responsePacket);
+            globalNotifyHandler.sendSuccessMessage(command, null, responsePacket);
         }
 
         recyclePacket(responsePacket);
@@ -323,7 +344,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         AbstractSerialContext serialContext = getSerialContext(packet);
         if (serialContext != null) {
             logger.debug("about serial packet: " + packet);
-            Packet processPacket = serialContext.processPacket(this,packet);
+            Packet processPacket = serialContext.processPacket(this, packet);
             if (processPacket == null) {
                 return false;
             }
@@ -348,7 +369,7 @@ public class RequestQueue implements PacketListener,ConnectionListener {
         }
 
         if (prepareDispatchPacket(packet)) {
-            boolean intercepted = getInterceptorChain().invokePesponseHandle(packet.getCommand(),packet);
+            boolean intercepted = getInterceptorChain().invokePesponseHandle(packet.getCommand(), packet);
             if (intercepted) {
                 recyclePacket(packet);
                 return;
@@ -371,5 +392,9 @@ public class RequestQueue implements PacketListener,ConnectionListener {
 
     public interface Filter {
         boolean filter(RequestContext context);
+    }
+
+    public interface SerialFilter {
+        boolean serialFilter(Integer integer);
     }
 }

@@ -5,6 +5,7 @@ import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.Request;
 import okio.ByteString;
+
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,14 +110,17 @@ public class RequestContext implements ResponseHandler {
     public void startTimeoutTimer() {
         if (timer != null) {
             timer.cancel();
+            timer = null;
         }
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                RequestContext.this.onRequestTimeoutListener.onRequestTimeout(RequestContext.this);
+                if (onRequestTimeoutListener != null) {
+                    RequestContext.this.onRequestTimeoutListener.onRequestTimeout(RequestContext.this);
+                }
             }
-        },readTimeout * 1000);
+        }, readTimeout * 1000);
     }
 
     public ByteString getRequestBody() {

@@ -25,7 +25,7 @@ public class WPBMockServer {
     private static final List<ConnectThread> connectThreads = new CopyOnWriteArrayList<ConnectThread>();
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(9103);
+        ServerSocket serverSocket = new ServerSocket(9102);
 
         //new QuoteThread().start();
         boolean flag = true;

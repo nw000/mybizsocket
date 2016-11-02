@@ -1,6 +1,7 @@
 package bizsocket.tcp;
 
 import okio.ByteString;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public final class Request {
         return new Builder(this);
     }
 
-    public void putToAttach(Object key,Object value) {
+    public void putToAttach(Object key, Object value) {
         if (attach == null) {
             attach = new HashMap();
         }

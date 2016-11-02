@@ -15,8 +15,8 @@ public class ReconnectionManager {
 
     private SocketConnection connection;
     private ReconnectionManager.ReconnectionThread reconnectionThread;
-    private boolean done = false;
-    private boolean needRecnect = false;
+    private boolean done = false;        //是否允许重连
+    private boolean needRecnect = false;    //是否需要重连
     private ReconnectHandler reconnectHandler;
 
     public void bind(SocketConnection connection) {
@@ -65,8 +65,8 @@ public class ReconnectionManager {
     }
 
     public synchronized void reconnect() {
-        if(this.isReconnectionAllowed()) {
-            if(this.reconnectionThread != null && this.reconnectionThread.isAlive()) {
+        if (this.isReconnectionAllowed()) {
+            if (this.reconnectionThread != null && this.reconnectionThread.isAlive()) {
                 return;
             }
 
@@ -94,10 +94,10 @@ public class ReconnectionManager {
         }
 
         public void run() {
-            while(ReconnectionManager.this.isReconnectionAllowed() && !isInterrupted()) {
+            while (ReconnectionManager.this.isReconnectionAllowed() && !isInterrupted()) {
                 int timeDelay = this.timeDelay();
 
-                while(ReconnectionManager.this.isReconnectionAllowed() && timeDelay > 0 && !isInterrupted()) {
+                while (ReconnectionManager.this.isReconnectionAllowed() && timeDelay > 0 && !isInterrupted()) {
                     try {
                         Thread.sleep(1000L);
                         --timeDelay;
@@ -113,8 +113,7 @@ public class ReconnectionManager {
                     if (isReconnectionAllowed() && !isInterrupted()) {
                         if (reconnectHandler != null) {
                             reconnectHandler.doReconnect(connection);
-                        }
-                        else {
+                        } else {
                             logger.debug("connection.connect()  reconnect");
                             connection.reconnect();
                         }

@@ -1,14 +1,14 @@
 package client;
 
-import bizsocket.core.*;
+import bizsocket.core.AbstractBizSocket;
+import bizsocket.core.Configuration;
+import bizsocket.core.ResponseHandler;
+import bizsocket.core.SerialSignal;
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
 import bizsocket.tcp.Request;
 import common.WPBCmd;
-import common.WPBPacket;
-import okio.BufferedSource;
 import okio.ByteString;
-import java.io.IOException;
 
 /**
  * Created by tong on 16/10/3.
@@ -26,7 +26,7 @@ public class WPBSocketClient extends AbstractBizSocket {
     public static void main(String[] args) {
         WPBSocketClient client = new WPBSocketClient(new Configuration.Builder()
                 .host("127.0.0.1")
-                .port(9103)
+                .port(9102)
                 .build());
         client.addSerialSignal(new SerialSignal(OrderListSerialContext.class, WPBCmd.QUERY_ORDER_LIST.getValue(),
                 new int[]{WPBCmd.QUERY_ORDER_LIST.getValue(), WPBCmd.QUERY_ORDER_TYPE.getValue()}));
@@ -99,20 +99,20 @@ public class WPBSocketClient extends AbstractBizSocket {
         }
     }
 
-    public static class WPBPacketFactory extends PacketFactory {
-        @Override
-        public Packet getRequestPacket(Packet reusable,Request request) {
-            return new WPBPacket(request.command(),request.body());
-        }
-
-        @Override
-        public Packet getHeartBeatPacket(Packet recyclable) {
-            return null;
-        }
-
-        @Override
-        public Packet getRemotePacket(Packet reusable,BufferedSource source) throws IOException {
-            return WPBPacket.build(reusable, source);
-        }
-    }
+    //public static class WPBPacketFactory extends PacketFactory {
+    //    @Override
+    //    public Packet getRequestPacket(Packet reusable,Request request) {
+    //        return new WPBPacket(request.command(),request.body());
+    //    }
+    //
+    //    @Override
+    //    public Packet getHeartBeatPacket(Packet recyclable) {
+    //        return null;
+    //    }
+    //
+    //    @Override
+    //    public Packet getRemotePacket(Packet reusable,BufferedSource source) throws IOException {
+    //        return WPBPacket.build(reusable, source);
+    //    }
+    //}
 }

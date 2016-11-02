@@ -18,6 +18,7 @@ public class Configuration {
     private Configuration actual;
 
     Configuration() {
+
     }
 
     protected Configuration(int readTimeout, String host, int port, int heartbeat) {

@@ -66,6 +66,7 @@ public abstract class Packet {
 
     /**
      * 获取包的描述
+     *
      * @return
      */
     public String getDescription() {
@@ -105,15 +106,15 @@ public abstract class Packet {
      * 回收packet
      */
     public void recycle() {
-        if ((getFlags() & FLAG_RECYCLABLE) == 0) {
+        if ((getFlags() & FLAG_RECYCLABLE) == 0) {   //说明没有可回收的状态
             return;
         }
-        if ((getFlags() & FLAG_RECYCLED) != 0) {
+        if ((getFlags() & FLAG_RECYCLED) != 0) {     //说明正在回收
             return;
         }
 
         if (packetPool != null) {
-            setFlags(getFlags() | FLAG_RECYCLED);
+            setFlags(getFlags() | FLAG_RECYCLED); //变成已经回收完成
             packetPool.push(this);
         }
         onRecycle();
