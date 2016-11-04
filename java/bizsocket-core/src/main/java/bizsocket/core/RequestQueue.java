@@ -86,6 +86,7 @@ public class RequestQueue implements PacketListener, ConnectionListener {
         });
         //判断是否是串行入口命令
         if (serialSignal != null) {
+            //发现是串行入口的命令 获取串行上下文，要判断packgeId是否相同
             AbstractSerialContext serialContext = getSerialContext(context);
             if (serialContext == null) {
                 try {

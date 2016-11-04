@@ -14,14 +14,24 @@ import okio.ByteString;
  * Created by tong on 16/10/3.
  */
 public class WPBSocketClient extends AbstractBizSocket {
-    public WPBSocketClient(Configuration configuration) {
-        super(configuration);
-    }
 
     @Override
     protected PacketFactory createPacketFactory() {
         return new WPBPacketFactory();
     }
+
+    public WPBSocketClient(Configuration configuration) {
+        super(configuration);
+    }
+
+    //public WPBSocketClient(Configuration configuration) {
+    //    super(configuration);
+    //}
+
+    //@Override
+    //protected PacketFactory createPacketFactory() {
+    //    return new WPBPacketFactory();
+    //}
 
     public static void main(String[] args) {
         WPBSocketClient client = new WPBSocketClient(new Configuration.Builder()
