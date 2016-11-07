@@ -3,6 +3,7 @@ package bizsocket.core;
 import bizsocket.logger.Logger;
 import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,20 +15,22 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
     private final Logger logger = LoggerFactory.getLogger(DefaultOne2ManyNotifyRouter.class.getSimpleName());
 
     private final Collection<NotifyContext> notifyContexts = new CopyOnWriteArrayList<NotifyContext>();
-    private final Map<Integer,Packet> packetMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Packet> packetMap = new ConcurrentHashMap<>();
     private final Set<StickyContext> stickyCmds = Collections.synchronizedSet(new HashSet<StickyContext>());
 
     /**
      * 添加对粘性通知的支持
+     *
      * @param cmd
      */
     @Override
-    public void addStickyCmd(int cmd,PacketValidator triggerPacketValidator) {
+    public void addStickyCmd(int cmd, PacketValidator triggerPacketValidator) {
         stickyCmds.add(new StickyContext(cmd, triggerPacketValidator));
     }
 
     /**
      * 移除粘性广播命令
+     *
      * @param command
      */
     @Override
@@ -50,14 +53,14 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         if (tag == null || responseHandler == null) {
             return;
         }
-        NotifyContext notifyContext = new NotifyContext(tag,cmd,responseHandler);
+        NotifyContext notifyContext = new NotifyContext(tag, cmd, responseHandler);
         notifyContexts.add(notifyContext);
 
         Packet packet = null;
         if (stickyCmds.contains(cmd) && (packet = packetMap.get(cmd)) != null) {
             //如果是粘性广播命令并且有缓存的包，立即回调一次
             logger.debug("Sticky callback: " + packet);
-            sendSuccessMessage(notifyContext,cmd,packet);
+            sendSuccessMessage(notifyContext, cmd, packet);
         }
     }
 
@@ -84,7 +87,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         }
         for (NotifyContext notifyContext : notifyContexts) {
             if (notifyContext.cmd == command) {
-                sendSuccessMessage(notifyContext,command,packet);
+                sendSuccessMessage(notifyContext, command, packet);
             }
         }
 
@@ -99,7 +102,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
                 && stickyContext.triggerPacketValidator != null
                 && stickyContext.triggerPacketValidator.verify(packet)) {
             packet.setFlags(packet.getFlags() | Packet.FLAG_RECYCLABLE);
-            packetMap.put(packet.getCommand(),packet);
+            packetMap.put(packet.getCommand(), packet);
         }
     }
 
@@ -142,7 +145,7 @@ public class DefaultOne2ManyNotifyRouter implements One2ManyNotifyRouter {
         Object tag;
         ResponseHandler responseHandler;
 
-        public NotifyContext(Object tag,int cmd,ResponseHandler responseHandler) {
+        public NotifyContext(Object tag, int cmd, ResponseHandler responseHandler) {
             this.cmd = cmd;
             this.tag = tag;
             this.responseHandler = responseHandler;
