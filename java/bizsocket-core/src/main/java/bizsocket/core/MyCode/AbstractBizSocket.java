@@ -43,7 +43,6 @@ public abstract class AbstractBizSocket implements Connection, BizSocket {
             }
         });
         cacheManager = createCacheManager(); //创建缓存管理
-
     }
 
 
