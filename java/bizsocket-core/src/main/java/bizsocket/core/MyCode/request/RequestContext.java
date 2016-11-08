@@ -1,5 +1,7 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.request;
 
+import bizsocket.core.MyCode.Configuration;
+import bizsocket.core.MyCode.ResponseHandler;
 import bizsocket.logger.Logger;
 import bizsocket.logger.LoggerFactory;
 import bizsocket.tcp.Packet;

@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.SerialSignal;
 
 import java.util.Arrays;
 

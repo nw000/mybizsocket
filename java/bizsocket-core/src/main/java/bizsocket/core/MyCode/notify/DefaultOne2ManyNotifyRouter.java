@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.notify;
 
 import bizsocket.core.PacketValidator;
 import bizsocket.core.ResponseHandler;

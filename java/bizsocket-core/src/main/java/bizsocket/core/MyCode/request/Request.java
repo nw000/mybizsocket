@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.request;
 
 import okio.ByteString;
 

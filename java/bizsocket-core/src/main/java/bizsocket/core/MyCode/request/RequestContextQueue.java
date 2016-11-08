@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.request;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;

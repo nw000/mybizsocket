@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.interceptor;
 
 import bizsocket.core.RequestContext;
 import bizsocket.tcp.Packet;

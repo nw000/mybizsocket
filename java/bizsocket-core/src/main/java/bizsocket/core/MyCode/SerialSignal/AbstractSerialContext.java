@@ -1,4 +1,4 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.SerialSignal;
 
 import bizsocket.core.RequestContext;
 import bizsocket.core.RequestQueue;

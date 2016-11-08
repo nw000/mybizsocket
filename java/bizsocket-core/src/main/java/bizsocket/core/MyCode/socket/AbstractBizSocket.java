@@ -1,5 +1,6 @@
-package bizsocket.core.MyCode;
+package bizsocket.core.MyCode.socket;
 
+import bizsocket.core.MyCode.Configuration;
 import bizsocket.core.One2ManyNotifyRouter;
 import bizsocket.core.RequestContext;
 import bizsocket.core.RequestQueue;
