@@ -1,6 +1,6 @@
 package bizsocket.core.MyCode.interceptor;
 
-import bizsocket.core.RequestContext;
+import bizsocket.core.MyCode.request.RequestContext;
 import bizsocket.tcp.Packet;
 
 import java.util.ArrayList;

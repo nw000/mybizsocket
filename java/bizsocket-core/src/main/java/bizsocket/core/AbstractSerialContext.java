@@ -33,6 +33,7 @@ public abstract class AbstractSerialContext {
 
     /**
      * 获取入口请求的业务序列号
+     *
      * @return
      */
     public String getRequestPacketId() {
@@ -44,13 +45,14 @@ public abstract class AbstractSerialContext {
 
     /**
      * 是否分发这个包
+     *
      * @param packet
      * @return 不为null 继续分发  为null 不分发
      */
     public abstract Packet processPacket(RequestQueue requestQueue, Packet packet);
 
     //是否属于这个上下文的包
-    public boolean shouldProcess(RequestQueue requestQueue,Packet packet) {
+    public boolean shouldProcess(RequestQueue requestQueue, Packet packet) {
         int command = packet.getCommand();
         String requestPacketId = getRequestPacketId();
         String currentPacketId = packet.getPacketID();

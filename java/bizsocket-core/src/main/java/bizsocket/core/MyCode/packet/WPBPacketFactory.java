@@ -1,10 +1,8 @@
-package client;
+package bizsocket.core.MyCode.packet;
 
 import bizsocket.tcp.Packet;
 import bizsocket.tcp.PacketFactory;
 import bizsocket.tcp.Request;
-import common.WPBCmd;
-import common.WPBPacket;
 import okio.BufferedSource;
 
 import java.io.IOException;

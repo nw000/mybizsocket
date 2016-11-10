@@ -140,7 +140,6 @@ public class RequestQueue implements PacketListener, ConnectionListener {
             return;
         }
         requestContextList.removeAll(requestContexts);
-
         for (RequestContext context : requestContexts) {
             recyclePacket(context.getRequestPacket());
         }

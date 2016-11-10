@@ -35,7 +35,7 @@ public class RequestContext implements ResponseHandler {
     /**
      * 写出这个包之前清空队列
      */
-    public static final int FLAG_NOT_SUPPORT_QUOTE = 1 << 4;
+    public static final int FLAG_CLEAR_QUEUE = 1 << 4;
 
     /**
      * 同一个请求不允许重复出现在队列中
@@ -62,6 +62,12 @@ public class RequestContext implements ResponseHandler {
     private OnRequestTimeoutListener onRequestTimeoutListener;
     private Timer timer;
     private long readTimeout = Configuration.DEFULT_READ_TIMEOUT;
+
+    public RequestContext() {
+        //this.request = request;
+        //this.requestPacket = packet;
+        //this.responseHandler = responseHandler;
+    }
 
 
     public int getFlags() {
