@@ -12,6 +12,7 @@ import common.WPBPacket;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
     private int[] orderIdArr;
     private int[] orderQuerySeqArr;
 
-    private Map<Integer,Packet> orderTypeMap = new ConcurrentHashMap();
+    private Map<Integer, Packet> orderTypeMap = new ConcurrentHashMap();
 
     public OrderListSerialContext(SerialSignal serialSignal, RequestContext requestContext) {
         super(serialSignal, requestContext);
@@ -39,7 +40,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
 
     @Override
     public boolean shouldProcess(RequestQueue requestQueue, Packet packet) {
-        boolean result = super.shouldProcess(requestQueue,packet);
+        boolean result = super.shouldProcess(requestQueue, packet);
         if (!result) {
             return false;
         }
@@ -67,21 +68,21 @@ public class OrderListSerialContext extends AbstractSerialContext {
                 orderListPacket = (WPBPacket) packet;
                 orderIdArr = new int[resultArr.length()];
                 orderQuerySeqArr = new int[resultArr.length()];
-                for (int i = 0;i < resultArr.length();i++) {
+                for (int i = 0; i < resultArr.length(); i++) {
                     JSONObject order = resultArr.optJSONObject(i);
                     if (order == null) {
                         continue;
                     }
 
-                    int orderId = order.optInt("orderId",-1);
+                    int orderId = order.optInt("orderId", -1);
                     if (orderId == -1) {
                         continue;
                     }
 
                     orderIdArr[i] = orderId;
                     //发起查询订单类型的查询
-                    WPBPacket wpbPacket = buildQueryOrderTypePacket(requestQueue,orderId);
-                    
+                    WPBPacket wpbPacket = buildQueryOrderTypePacket(requestQueue, orderId);
+
                     orderQuerySeqArr[i] = Integer.valueOf(wpbPacket.getPacketID());
                     if (wpbPacket != null) {
                         System.out.println("同步请求订单类型: " + wpbPacket.getContent());
@@ -91,8 +92,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
             } catch (Exception e) {
                 return false;
             }
-        }
-        else if (packet.getCommand() == WPBCmd.QUERY_ORDER_TYPE.getValue()) {
+        } else if (packet.getCommand() == WPBCmd.QUERY_ORDER_TYPE.getValue()) {
             if (orderIdArr == null) {
                 return false;
             }
@@ -104,7 +104,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
                 if (orderid == orderIdArr[i] && Integer.valueOf(wpbPacket.getPacketID()) == orderQuerySeqArr[i]) {
                     contain = true;
                     System.out.println("收到订单类型: " + wpbPacket.getContent());
-                    orderTypeMap.put(orderid,packet);
+                    orderTypeMap.put(orderid, packet);
                     break;
                 }
             }
@@ -119,7 +119,7 @@ public class OrderListSerialContext extends AbstractSerialContext {
     private WPBPacket buildQueryOrderTypePacket(RequestQueue requestQueue, int orderId) {
         JSONObject params = new JSONObject();
         try {
-            params.put("orderId",String.valueOf(orderId));
+            params.put("orderId", String.valueOf(orderId));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -139,13 +139,13 @@ public class OrderListSerialContext extends AbstractSerialContext {
             try {
                 JSONObject obj = new JSONObject(orderListPacket.getContent());
                 JSONArray resultArr = obj.optJSONArray("result");
-                for (int i = 0;i < resultArr.length();i++) {
+                for (int i = 0; i < resultArr.length(); i++) {
                     JSONObject order = resultArr.optJSONObject(i);
                     int orderId = order.optInt("orderId");
 
-                    JSONObject orderType = new JSONObject(((WPBPacket)orderTypeMap.get(orderId)).getContent());
-                    order.put("orderType",orderType.optInt("ordertype",0));
-                    order.put("orderTypeRes",orderType);
+                    JSONObject orderType = new JSONObject(((WPBPacket) orderTypeMap.get(orderId)).getContent());
+                    order.put("orderType", orderType.optInt("ordertype", 0));
+                    order.put("orderTypeRes", orderType);
                 }
 
                 WPBPacket wpbPacket = (WPBPacket) packet;

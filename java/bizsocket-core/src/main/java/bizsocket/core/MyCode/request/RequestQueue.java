@@ -85,15 +85,6 @@ public class RequestQueue implements PacketListener, ConnectionListener {
 
     }
 
-    private void sendRequest(RequestContext context) {
-        if ((context.getFlags() | RequestContext.FLAG_CHECK_CONNECT_STATUS) == 0 ||
-                (context.getFlags() | RequestContext.FLAG_CHECK_CONNECT_STATUS) != 0 &&
-                abstractBizSocket.getSocketConnection().isSocketClosed()) {
-
-        }
-
-    }
-
     private void dealSerialSignal(final RequestContext context) {
         SerialSignal serialSignal = getSerialSignal(new SerialFilter() {
             @Override
@@ -115,51 +106,6 @@ public class RequestQueue implements PacketListener, ConnectionListener {
         removeExpiredSerialContexts();
     }
 
-    private void removeExpiredSerialContexts() {
-        List<AbstractSerialContext> preDelList = new ArrayList<AbstractSerialContext>();
-        for (AbstractSerialContext serialContext : mSerialContexts) {
-            if (serialContext.isExpired()) {
-                preDelList.add(serialContext);
-            }
-        }
-        mSerialContexts.removeAll(preDelList);
-    }
-
-    private AbstractSerialContext buildSerialContext(SerialSignal serialSignal, RequestContext context) {
-        try {
-            Constructor<? extends AbstractSerialContext> constructor = serialSignal.getSerialContextType().getConstructor(SerialSignal.class, RequestContext.class);
-            AbstractSerialContext abstractSerialContext = constructor.newInstance(serialSignal, context);
-            return abstractSerialContext;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private AbstractSerialContext getSerialContext(RequestContext context) {
-        for (AbstractSerialContext abstractBizSocket : mSerialContexts) {
-            if (abstractBizSocket.getSerialSignal().getEntranceCommand() == context.getRequestCommand() &&
-                    abstractBizSocket.getRequestPacketId() != null &&
-                    abstractBizSocket.getRequestPacketId().equals(context)) {
-                return abstractBizSocket;
-            }
-        }
-        return null;
-    }
-
-    private SerialSignal getSerialSignal(SerialFilter serialFilter) {
-        if (serialFilter == null) {
-            throw new RuntimeException("serialFilter can not be null");
-        }
-        for (SerialSignal serialSignal : serialSignalSet) {
-            if (serialFilter.filter(serialSignal.getEntranceCommand())) {
-                return serialSignal;
-            }
-        }
-        return null;
-    }
-
     private void prepareContext(final RequestContext requestContext) {
         requestContext.setOnRequestTimeoutListener(new RequestContext.OnRequestTimeoutListener() {
             @Override
@@ -174,13 +120,27 @@ public class RequestQueue implements PacketListener, ConnectionListener {
 
     }
 
+    private void recyclePacket(Packet packet) {
+        if (packet == null) {
+            return;
+        }
+        packet.recycle();
+    }
+
     private void removeRequestContext(final RequestContext context) {
         removeRequestContexts(new ArrayList<RequestContext>() {{
             add(context);
         }});
     }
 
-    public void removeRequestContexts(Collection<RequestContext> requestContext) {
+    public void removeRequestContexts(Collection<RequestContext> requestContexts) {
+        if (requestContexts == null) {
+            return;
+        }
+        requestContextList.removeAll(requestContexts);
+        for (RequestContext context : requestContexts) {
+            recyclePacket(context.getRequestPacket());
+        }
 
     }
 
@@ -195,6 +155,86 @@ public class RequestQueue implements PacketListener, ConnectionListener {
             }
         }
         return contexts;
+    }
+
+    private void sendRequest(RequestContext context) {
+        if ((context.getFlags() | RequestContext.FLAG_CHECK_CONNECT_STATUS) == 0 ||
+                (context.getFlags() | RequestContext.FLAG_CHECK_CONNECT_STATUS) != 0 &&
+                        abstractBizSocket.getSocketConnection().isSocketClosed()) {
+            if (sendPacket(context.getRequestPacket())) {
+                context.setFlags(context.getFlags() | RequestContext.FLAG_REQUEST_ALERADY_SEND);
+                onPacketSend(context);
+            }
+            if (context.getResponseHandler() == null) {
+                removeRequestContext(context);
+            }
+
+        } else {
+            //等待连接成功后
+            logger.debug("connect closed , wait ...");
+        }
+
+    }
+
+    private boolean sendPacket(Packet requestPacket) {
+        if (abstractBizSocket.getSocketConnection() != null) {
+            abstractBizSocket.getSocketConnection().sendPacket(requestPacket);
+            return true;
+        }
+        return false;
+    }
+
+    private void onPacketSend(RequestContext context) {
+
+    }
+
+    //获取串行的context
+    private AbstractSerialContext getSerialContext(RequestContext context) {
+        for (AbstractSerialContext abstractBizSocket : mSerialContexts) {
+            if (abstractBizSocket.getSerialSignal().getEntranceCommand() == context.getRequestCommand() &&
+                    abstractBizSocket.getRequestPacketId() != null &&
+                    abstractBizSocket.getRequestPacketId().equals(context)) {
+                return abstractBizSocket;
+            }
+        }
+        return null;
+    }
+
+    // 创建串行的context
+    private AbstractSerialContext buildSerialContext(SerialSignal serialSignal, RequestContext context) {
+        try {
+            Constructor<? extends AbstractSerialContext> constructor = serialSignal.getSerialContextType().getConstructor(SerialSignal.class, RequestContext.class);
+            AbstractSerialContext abstractSerialContext = constructor.newInstance(serialSignal, context);
+            return abstractSerialContext;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    //移除过期的上下文
+    private void removeExpiredSerialContexts() {
+        List<AbstractSerialContext> preDelList = new ArrayList<AbstractSerialContext>();
+        for (AbstractSerialContext serialContext : mSerialContexts) {
+            if (serialContext.isExpired()) {
+                preDelList.add(serialContext);
+            }
+        }
+        mSerialContexts.removeAll(preDelList);
+    }
+
+    //获取串行信号
+    private SerialSignal getSerialSignal(SerialFilter serialFilter) {
+        if (serialFilter == null) {
+            throw new RuntimeException("serialFilter can not be null");
+        }
+        for (SerialSignal serialSignal : serialSignalSet) {
+            if (serialFilter.filter(serialSignal.getEntranceCommand())) {
+                return serialSignal;
+            }
+        }
+        return null;
     }
 
     public void addSerialSignal(SerialSignal serialSignal) {
@@ -212,11 +252,33 @@ public class RequestQueue implements PacketListener, ConnectionListener {
 
     @Override
     public void processPacket(Packet packet) {
+        if (packet == null) {
+            return;
+        }
+        packet.onReceiveFromServer();
+
+
+
+
+
 
     }
 
     @Override
     public void connected(SocketConnection connection) {
+        excuteAllRequestContext();
+    }
+
+    private void excuteAllRequestContext() {
+        Collection<RequestContext> prepareExecuteList = getRequestContext(new Filter() {
+            @Override
+            public boolean filter(RequestContext requestContext) {
+                return (requestContext.getFlags() & RequestContext.FLAG_REQUEST_ALERADY_SEND) == 0;
+            }
+        });
+        for (RequestContext requestContext : prepareExecuteList) {
+            sendPacket(requestContext.getRequestPacket());
+        }
 
     }
 
